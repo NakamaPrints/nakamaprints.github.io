@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nakama Prints · QR cards</title>
+  <title>Nakama Prints · Cards &amp; stickers</title>
   <link rel="icon" href="assets/np-logo.png" />
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Luckiest+Guy&family=Press+Start+2P&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
@@ -78,6 +78,15 @@
     .back .tip { margin-top: auto; padding-top: 1.4mm; border-top: 0.36mm dashed #c9b88f; font-size: 7.2pt; font-weight: 500; line-height: 1.3; color: #5a4a2a; }
     .back .foot span { font-family: 'Chakra Petch', sans-serif; font-weight: 700; font-size: 7.8pt; letter-spacing: 0.16em; text-transform: uppercase; color: #fff; text-shadow: 0 0.48mm 0 rgba(0,0,0,0.35); }
 
+    /* NP sticker sheet: the AR marker, round, with a dashed cut line */
+    .stickers { display: flex; flex-wrap: wrap; gap: 5mm; justify-content: center; align-content: flex-start; }
+    .sticker { border-radius: 50%; outline: 0.25mm dashed #9a9aa2; outline-offset: 0.8mm; }
+    .sticker img { display: block; width: 100%; height: 100%; }
+    .sheet-note { text-align: center; font-size: 8pt; color: #888; margin: 4mm 0 0; }
+    .controls h2 { font-size: 16px; margin: 26px 0 8px; }
+    select { font: inherit; padding: 9px 10px; border: 2px solid var(--ink); background: #fff; }
+    a.dl { font-weight: 700; color: var(--pink); }
+
     @media print {
       @page { size: A4; margin: 8mm; }
       body { background: #fff; }
@@ -90,7 +99,7 @@
 </head>
 <body>
   <div class="controls">
-    <h1>QR cards</h1>
+    <h1>Cards &amp; stickers</h1>
     <p>One card goes inside each Pokeball. All cards look the same, so the surprise stays hidden. The label under each card
        (cut it off) tells you which creature it opens. Print at 100% / actual size.</p>
     <div class="row">
@@ -106,7 +115,34 @@
     </div>
     <p id="duplex-hint">Printer settings: <b>double-sided, flip on long edge</b>, 100% / actual size. Each front page is followed by
        its back page. Do one test sheet first and hold it up to a light to check the fronts and backs line up.</p>
-    <div class="row"><button id="print">Print cards</button></div>
+
+    <h2>NP stickers</h2>
+    <p>The same sticker goes flat on the floor of every Pokeball. It's what the camera looks for. Use one size for all your
+       balls: a bigger sticker means a bigger Pokémon. Matte sticker paper works best (gloss reflects light).</p>
+    <div class="row">
+      <label>Sticker size
+        <select id="ssize">
+          <option value="30">30 mm</option>
+          <option value="35">35 mm</option>
+          <option value="40" selected>40 mm</option>
+          <option value="50">50 mm</option>
+        </select>
+      </label>
+      <label>How many<input type="number" id="scount" min="0" max="200" value="9" /></label>
+      <a class="dl" href="assets/np-sticker.png" download="nakama-np-sticker.png">Download the sticker image (PNG)</a>
+    </div>
+
+    <h2>Print</h2>
+    <div class="row">
+      <label>What to print
+        <select id="what">
+          <option value="both">Cards + stickers</option>
+          <option value="cards">Cards only</option>
+          <option value="stickers">Stickers only</option>
+        </select>
+      </label>
+      <button id="print">Print</button>
+    </div>
     <p class="warn" id="warn" hidden></p>
   </div>
   <div id="sheets"></div>
@@ -152,11 +188,13 @@
         for (let i = 0; i < counts[id]; i++) cards.push({ id, svg });
       }
 
+      const what = $('what').value;
       const withBacks = $('backs').checked;
       $('duplex-hint').hidden = !withBacks;
       const out = $('sheets');
       out.innerHTML = '';
       const PER_PAGE = 9, COLS = 3;
+      if (what === 'stickers') cards.length = 0;
       for (let p = 0; p < cards.length; p += PER_PAGE) {
         const group = cards.slice(p, p + PER_PAGE);
         const n = p / PER_PAGE + 1;
@@ -164,6 +202,36 @@
         if (withBacks) {
           // mirror each row so every back lands behind its own front after a long-edge flip
           out.appendChild(page(`Sheet ${n} · back`, group.map((c, i) => ({ i, html: backHtml(), mirror: true }))));
+        }
+      }
+
+      if (what !== 'cards') {
+        // as many stickers per A4 page as fit, with room for the dashed cut circle
+        const size = +$('ssize').value, gap = 5;
+        const perRow = Math.floor((194 + gap) / (size + 2 + gap));
+        const rows = Math.floor((268 + gap) / (size + 2 + gap));
+        const perPage = perRow * rows;
+        const total = Math.max(0, Math.min(200, +$('scount').value || 0));
+        for (let p = 0; p < total; p += perPage) {
+          const l = document.createElement('div');
+          l.className = 'page-label';
+          l.textContent = `Stickers · ${size} mm`;
+          const pg = document.createElement('div');
+          pg.className = 'page';
+          const wrap = document.createElement('div');
+          wrap.className = 'stickers';
+          for (let i = p; i < Math.min(total, p + perPage); i++) {
+            const st = document.createElement('div');
+            st.className = 'sticker';
+            st.style.width = st.style.height = size + 'mm';
+            st.innerHTML = '<img src="assets/np-sticker.png" alt="NP sticker" />';
+            wrap.appendChild(st);
+          }
+          const note = document.createElement('p');
+          note.className = 'sheet-note';
+          note.textContent = `NP stickers, ${size} mm. Print at 100% / actual size, single-sided. Cut along the dashed circles.`;
+          pg.append(wrap, note);
+          out.append(l, pg);
         }
       }
 
@@ -226,6 +294,7 @@
       if (e.target.dataset.id) { counts[e.target.dataset.id] = Math.max(0, Math.min(40, +e.target.value || 0)); render(); }
     });
     $('backs').addEventListener('change', render);
+    for (const el of ['ssize', 'scount', 'what']) $(el).addEventListener('input', render);
     $('print').addEventListener('click', () => window.print());
     render();
   </script>
