@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nakama Prints · QR cards</title>
+  <link rel="icon" href="assets/np-logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+  <style>
+    :root { --ink: #0c0c0c; --pink: #d72d6b; --line: #d9d9de; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Chakra Petch', system-ui, sans-serif; color: var(--ink); background: #f3f3f5; }
+    .controls { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+    .controls h1 { font-family: 'Press Start 2P', monospace; font-size: 18px; font-weight: 400; margin: 0 0 8px; }
+    .controls p { margin: 0 0 16px; color: #45454c; line-height: 1.5; }
+    .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-bottom: 14px; }
+    label { display: grid; gap: 4px; font-weight: 700; font-size: 13px; }
+    input { font: inherit; padding: 10px 12px; border: 2px solid var(--ink); background: #fff; }
+    input[type=url] { width: min(560px, 100%); }
+    input[type=number] { width: 90px; }
+    button { font: inherit; font-weight: 700; padding: 11px 20px; border: 0; color: #fff; background: var(--pink); cursor: pointer; }
+    .warn { color: #a81f50; font-weight: 700; }
+
+    .sheet { display: flex; flex-wrap: wrap; gap: 6mm; justify-content: center; padding: 8mm; background: #fff; max-width: 210mm; margin: 0 auto 40px; }
+    .slot { display: grid; gap: 2mm; justify-items: center; }
+    .card {
+      width: 45mm; height: 60mm; padding: 4mm 4mm 3mm;
+      display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+      border: 0.8mm solid var(--ink); background: #fff;
+      clip-path: polygon(4mm 0, 100% 0, 100% calc(100% - 4mm), calc(100% - 4mm) 100%, 0 100%, 0 4mm);
+      outline: 0.2mm dashed #bbb; outline-offset: 1mm;
+    }
+    .card .top { display: flex; align-items: center; gap: 2mm; width: 100%; }
+    .card .top img { width: 8mm; }
+    .card .top span { font-weight: 700; font-size: 6.5pt; letter-spacing: 0.18em; text-transform: uppercase; }
+    .card h2 { margin: 0; font-family: 'Press Start 2P', monospace; font-weight: 400; font-size: 7.5pt; line-height: 1.5; text-align: center; }
+    .card h2 em { font-style: normal; color: var(--pink); }
+    .card .qr { width: 30mm; height: 30mm; }
+    .card .qr svg { width: 100%; height: 100%; display: block; }
+    .card .foot { font-size: 6pt; color: #45454c; text-align: center; }
+    .tag { font-size: 8pt; color: #888; }
+
+    @media print {
+      @page { size: A4; margin: 8mm; }
+      body { background: #fff; }
+      .controls { display: none; }
+      .sheet { padding: 0; margin: 0; max-width: none; }
+      .slot { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <h1>QR cards</h1>
+    <p>One card goes inside each Pokeball. All cards look the same, so the surprise stays hidden. The label under each card
+       (cut it off) tells you which creature it opens. Print at 100% / actual size.</p>
+    <div class="row">
+      <label>Link to your live AR page (GitHub Pages)
+        <input type="url" id="base" placeholder="https://yourname.github.io/nakama-ar/" />
+      </label>
+    </div>
+    <div class="row" id="counts"></div>
+    <div class="row"><button id="print">Print cards</button></div>
+    <p class="warn" id="warn" hidden></p>
+  </div>
+  <div class="sheet" id="sheet"></div>
+
+  <script src="js/sprites-data.js"></script>
+  <script>
+    const S = window.NAKAMA_SPRITES;
+    const $ = id => document.getElementById(id);
+    const counts = {};
+
+    // default base = the folder this page is served from
+    const here = location.href.split(/[?#]/)[0].replace(/[^/]*$/, '');
+    $('base').value = here;
+
+    for (const id of Object.keys(S)) {
+      counts[id] = 3;
+      const l = document.createElement('label');
+      l.innerHTML = `${S[id].name}<input type="number" min="0" max="40" value="3" data-id="${id}" />`;
+      $('counts').appendChild(l);
+    }
+
+    function qrSvg(text) {
+      const qr = qrcode(0, 'M');
+      qr.addData(text);
+      qr.make();
+      const n = qr.getModuleCount(), q = 2;
+      let d = '';
+      for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) d += `M${c + q} ${r + q}h1v1h-1z`;
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n + q * 2} ${n + q * 2}" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#0c0c0c"/></svg>`;
+    }
+
+    function render() {
+      let base = $('base').value.trim();
+      if (base && !base.endsWith('/') && !/\.html$/.test(base)) base += '/';
+      const bad = !/^https:\/\//.test(base) || /localhost|127\.0\.0\.1/.test(base);
+      $('warn').hidden = !bad;
+      $('warn').textContent = 'Heads up: this link isn\'t a public https address, so phones won\'t be able to open it. Put in your GitHub Pages link before printing.';
+
+      const sheet = $('sheet');
+      sheet.innerHTML = '';
+      for (const id of Object.keys(S)) {
+        const svg = qrSvg(base + '?c=' + id);
+        for (let i = 0; i < counts[id]; i++) {
+          const slot = document.createElement('div');
+          slot.className = 'slot';
+          slot.innerHTML = `
+            <div class="card">
+              <div class="top"><img src="assets/np-logo.png" alt="" /><span>Nakama Prints</span></div>
+              <h2>Who's <em>inside</em>?</h2>
+              <div class="qr">${svg}</div>
+              <div class="foot">Scan, then point at the NP sticker</div>
+            </div>
+            <div class="tag">${S[id].name} · cut off</div>`;
+          sheet.appendChild(slot);
+        }
+      }
+    }
+
+    $('base').addEventListener('input', render);
+    $('counts').addEventListener('input', e => {
+      if (e.target.dataset.id) { counts[e.target.dataset.id] = Math.max(0, Math.min(40, +e.target.value || 0)); render(); }
+    });
+    $('print').addEventListener('click', () => window.print());
+    render();
+  </script>
+</body>
+</html>

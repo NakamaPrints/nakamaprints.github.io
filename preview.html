@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nakama Prints · All starters</title>
+  <link rel="icon" href="assets/np-logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink: #0c0c0c; --pink: #d72d6b; --muted: #a7a7ad; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; color: #fff; font-family: 'Chakra Petch', system-ui, sans-serif;
+      background:
+        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px) 0 0 / 16px 16px,
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px) 0 0 / 16px 16px,
+        radial-gradient(120% 70% at 50% 0%, #2a0f1b 0%, var(--ink) 60%);
+    }
+    header { display: flex; align-items: center; gap: 12px; padding: 20px 16px 4px; max-width: 1100px; margin: 0 auto; }
+    header img { width: 40px; }
+    header h1 { flex: 1; margin: 0; font-family: 'Press Start 2P', monospace; font-weight: 400; font-size: clamp(13px, 3vw, 18px); }
+    button {
+      font: 700 13px 'Chakra Petch', sans-serif; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #fff; background: var(--pink); border: 0; padding: 10px 16px; cursor: pointer;
+      clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+    }
+    button.ghost { background: #26262c; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; max-width: 1100px; margin: 0 auto; padding: 16px; }
+    .card { position: relative; cursor: pointer; background: radial-gradient(60% 45% at 50% 70%, #3a1626 0%, #141418 75%); border: 2px solid #26262c; }
+    .card canvas { display: block; width: 100%; aspect-ratio: 1; image-rendering: pixelated; image-rendering: crisp-edges; }
+    .card .floor { position: absolute; left: 50%; bottom: 7%; width: 46%; aspect-ratio: 2.6; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(closest-side, rgba(0,0,0,0.55), transparent); }
+    .label { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 14px 12px; border-top: 2px solid #26262c; background: #0f0f12; }
+    .label b { font-family: 'Press Start 2P', monospace; font-weight: 400; font-size: 12px; }
+    .label span { font-size: 13px; color: var(--muted); }
+    .label em { font-style: normal; color: var(--pink); font-weight: 700; }
+    p.hint { text-align: center; color: var(--muted); font-size: 14px; margin: 4px 16px 24px; }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="assets/np-logo.png" alt="" />
+    <h1>All starters</h1>
+    <button class="ghost" id="sound">Sound off</button>
+    <button id="again">Release all</button>
+  </header>
+  <div class="grid" id="grid"></div>
+  <p class="hint">Tap a creature to release it again. Each one does its move every few seconds.</p>
+
+  <script src="js/sprites-data.js"></script>
+  <script src="js/creature.js"></script>
+  <script src="js/sfx.js"></script>
+  <script>
+    const MOVE_NAME = { fire: 'Ember', water: 'Bubble + Tail Whip', grass: 'Razor Leaf' };
+    let sound = false;
+    const items = Object.keys(NAKAMA_SPRITES).map(id => {
+      const d = NAKAMA_SPRITES[id];
+      const c = new NakamaCreature(id);
+      c.onEvent = (ev, kind) => {
+        if (!sound) return;
+        if (ev === 'release') NakamaSfx.release();
+        if (ev === 'cry') NakamaSfx.cry(id);
+        if (ev === 'move') NakamaSfx.move(d.type, kind);
+      };
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `<div class="floor"></div><div class="label"><b>${d.name}</b><span>No.${id.padStart(3, '0')} · <em>${MOVE_NAME[d.type]}</em></span></div>`;
+      card.prepend(c.canvas);
+      card.addEventListener('click', () => c.appear());
+      document.getElementById('grid').appendChild(card);
+      return c;
+    });
+
+    document.getElementById('again').onclick = () => items.forEach((c, i) => setTimeout(() => c.appear(), i * 250));
+    document.getElementById('sound').onclick = e => {
+      sound = !sound;
+      if (sound && NakamaSfx.muted) NakamaSfx.toggle();
+      NakamaSfx.unlock();
+      NakamaSfx.preload(['release', ...Object.keys(NAKAMA_SPRITES).map(i => 'cry-' + i)]);
+      e.target.textContent = sound ? 'Sound on' : 'Sound off';
+    };
+
+    let last = performance.now();
+    (function loop(now) {
+      for (const c of items) { c.update(now - last); c.draw(); }
+      last = now;
+      requestAnimationFrame(loop);
+    })(last);
+    items.forEach((c, i) => setTimeout(() => c.appear(), 400 + i * 250));
+
+    // Records n frames of one creature (release, then forced moves) into a vertical strip.
+    // Used by tools to make the preview GIF.
+    window.captureStrip = (id, n = 220, dt = 50) => {
+      const c = new NakamaCreature(id);
+      const T = NAKAMA_TEX;
+      const strip = document.createElement('canvas');
+      strip.width = T; strip.height = T * n;
+      const ctx = strip.getContext('2d');
+      c.appear();
+      for (let i = 0; i < n; i++) {
+        if (i === 40 || i === 130) { c.nextMove = c.t; c.nextBlink = c.t + 2000; }
+        if (i === 30 || i === 110 || i === 200) c.blinkUntil = c.t + 150;
+        c.update(dt); c.draw();
+        ctx.drawImage(c.canvas, 0, i * T);
+      }
+      return strip.toDataURL('image/png');
+    };
+  </script>
+</body>
+</html>
