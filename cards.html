@@ -22,8 +22,12 @@
     button { font: inherit; font-weight: 700; padding: 11px 20px; border: 0; color: #fff; background: var(--pink); cursor: pointer; }
     .warn { color: #a81f50; font-weight: 700; }
 
-    .sheet { display: flex; flex-wrap: wrap; gap: 6mm; justify-content: center; padding: 8mm; background: #fff; max-width: 210mm; margin: 0 auto 40px; }
-    .slot { display: grid; gap: 2mm; justify-items: center; }
+    /* One .page per printed A4 side: fronts, then (optionally) the matching backs, mirrored left/right
+       so they line up when the printer flips the sheet on its long edge. */
+    .page { width: 194mm; min-height: 281mm; margin: 0 auto 24px; padding: 6mm 0; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+    .page-label { width: 194mm; margin: 0 auto 6px; font-size: 12px; font-weight: 700; color: #6b6b72; }
+    .grid { display: grid; grid-template-columns: repeat(3, 50mm); grid-auto-rows: 77mm; gap: 6mm; justify-content: center; }
+    .slot { display: grid; grid-template-rows: 70mm auto; gap: 2mm; justify-items: center; }
     /* "Who's that Pokémon?" card: orange sunburst, halftone dots, yellow lettering with a blue outline */
     .card {
       --yellow: #ffcb05; --blue: #2a5ab0; --blue-deep: #1a3a80;
@@ -54,13 +58,32 @@
     .card .foot { display: flex; align-items: center; justify-content: center; gap: 1.6mm; width: 100%; }
     .card .foot img { width: 6.5mm; filter: drop-shadow(0 0.4mm 0 rgba(0,0,0,0.35)); }
     .card .foot .scan { font-size: 11pt; -webkit-text-stroke: 1.1mm var(--blue); text-shadow: 0 0.5mm 0 var(--blue-deep); }
-    .tag { font-size: 8pt; color: #888; }
+    .tag { font-size: 8pt; color: #888; min-height: 4mm; }
+
+    /* Back of the card: how-to steps on a light panel inside the same orange frame */
+    .back { justify-content: flex-start; gap: 2mm; padding: 4mm 3.5mm 3mm; }
+    .back .head { font-size: 13pt; margin-top: 0.5mm; }
+    .back .panel {
+      width: 100%; flex: 1; padding: 2.6mm 2.6mm 2.2mm; background: #fffaf0; border-radius: 2mm;
+      border: 0.7mm solid var(--blue); box-shadow: 0 0.7mm 0 var(--blue-deep);
+      display: flex; flex-direction: column; gap: 2.1mm; font-family: 'Chakra Petch', sans-serif; color: #1a2a4f;
+    }
+    .back ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2.1mm; counter-reset: st; }
+    .back li { counter-increment: st; display: flex; gap: 1.8mm; align-items: flex-start; font-size: 7pt; font-weight: 700; line-height: 1.2; }
+    .back li::before {
+      content: counter(st); flex: none; width: 4.2mm; height: 4.2mm; border-radius: 50%; display: grid; place-items: center;
+      background: var(--blue); color: var(--yellow); font-family: 'Luckiest Guy', sans-serif; font-size: 7.5pt; line-height: 1; padding-top: 0.3mm;
+    }
+    .back li b { color: #c8301c; }
+    .back .tip { margin-top: auto; padding-top: 1.6mm; border-top: 0.3mm dashed #c9b88f; font-size: 6pt; font-weight: 500; line-height: 1.3; color: #5a4a2a; }
+    .back .foot span { font-family: 'Chakra Petch', sans-serif; font-weight: 700; font-size: 6.5pt; letter-spacing: 0.16em; text-transform: uppercase; color: #fff; text-shadow: 0 0.4mm 0 rgba(0,0,0,0.35); }
 
     @media print {
       @page { size: A4; margin: 8mm; }
       body { background: #fff; }
-      .controls { display: none; }
-      .sheet { padding: 0; margin: 0; max-width: none; }
+      .controls, .page-label { display: none; }
+      .page { margin: 0; padding: 6mm 0 0; box-shadow: none; min-height: 0; break-after: page; }
+      .page:last-child { break-after: auto; }
       .slot { break-inside: avoid; }
     }
   </style>
@@ -76,10 +99,17 @@
       </label>
     </div>
     <div class="row" id="counts"></div>
+    <div class="row">
+      <label style="display:flex; align-items:center; gap:8px; font-weight:700;">
+        <input type="checkbox" id="backs" checked style="width:18px; height:18px;" /> Print the how-to steps on the back (double-sided)
+      </label>
+    </div>
+    <p id="duplex-hint">Printer settings: <b>double-sided, flip on long edge</b>, 100% / actual size. Each front page is followed by
+       its back page. Do one test sheet first and hold it up to a light to check the fronts and backs line up.</p>
     <div class="row"><button id="print">Print cards</button></div>
     <p class="warn" id="warn" hidden></p>
   </div>
-  <div class="sheet" id="sheet"></div>
+  <div id="sheets"></div>
 
   <script src="js/sprites-data.js"></script>
   <script>
@@ -115,32 +145,87 @@
       $('warn').hidden = !bad;
       $('warn').textContent = 'Heads up: this link isn\'t a public https address, so phones won\'t be able to open it. Put in your GitHub Pages link before printing.';
 
-      const sheet = $('sheet');
-      sheet.innerHTML = '';
+      // every card to print, in order
+      const cards = [];
       for (const id of Object.keys(S)) {
         const svg = qrSvg(base + '?c=' + id);
-        for (let i = 0; i < counts[id]; i++) {
-          const slot = document.createElement('div');
-          slot.className = 'slot';
-          slot.innerHTML = `
-            <div class="card">
-              <div class="title">
-                <div class="line1 pk"><span>Who's</span><span class="q">?</span><span>That</span></div>
-                <div class="line2 pk">Pokémon</div>
-              </div>
-              <div class="qr">${svg}</div>
-              <div class="foot"><img src="assets/np-logo.png" alt="Nakama Prints" /><span class="scan pk">Scan me!</span></div>
-            </div>
-            <div class="tag">${S[id].name} · cut off</div>`;
-          sheet.appendChild(slot);
+        for (let i = 0; i < counts[id]; i++) cards.push({ id, svg });
+      }
+
+      const withBacks = $('backs').checked;
+      $('duplex-hint').hidden = !withBacks;
+      const out = $('sheets');
+      out.innerHTML = '';
+      const PER_PAGE = 9, COLS = 3;
+      for (let p = 0; p < cards.length; p += PER_PAGE) {
+        const group = cards.slice(p, p + PER_PAGE);
+        const n = p / PER_PAGE + 1;
+        out.appendChild(page(`Sheet ${n} · front`, group.map((c, i) => ({ i, html: frontHtml(c) }))));
+        if (withBacks) {
+          // mirror each row so every back lands behind its own front after a long-edge flip
+          out.appendChild(page(`Sheet ${n} · back`, group.map((c, i) => ({ i, html: backHtml(), mirror: true }))));
         }
       }
+
+      function page(label, items) {
+        const wrap = document.createDocumentFragment();
+        const l = document.createElement('div');
+        l.className = 'page-label'; l.textContent = label;
+        const pg = document.createElement('div');
+        pg.className = 'page';
+        const grid = document.createElement('div');
+        grid.className = 'grid';
+        for (const it of items) {
+          const row = Math.floor(it.i / COLS), col = it.i % COLS;
+          const slot = document.createElement('div');
+          slot.className = 'slot';
+          slot.style.gridRow = row + 1;
+          slot.style.gridColumn = (it.mirror ? COLS - col : col + 1);
+          slot.innerHTML = it.html;
+          grid.appendChild(slot);
+        }
+        pg.appendChild(grid);
+        wrap.append(l, pg);
+        return wrap;
+      }
+    }
+
+    function frontHtml(c) {
+      return `
+        <div class="card">
+          <div class="title">
+            <div class="line1 pk"><span>Who's</span><span class="q">?</span><span>That</span></div>
+            <div class="line2 pk">Pokémon</div>
+          </div>
+          <div class="qr">${c.svg}</div>
+          <div class="foot"><img src="assets/np-logo.png" alt="Nakama Prints" /><span class="scan pk">Scan me!</span></div>
+        </div>
+        <div class="tag">${S[c.id].name} · cut off</div>`;
+    }
+
+    function backHtml() {
+      return `
+        <div class="card back">
+          <div class="head pk">How to play</div>
+          <div class="panel">
+            <ol>
+              <li><span>Scan the QR on the front with your <b>phone camera</b></span></li>
+              <li><span>Tap <b>Release!</b> and allow the camera</span></li>
+              <li><span>Point at the <b>NP sticker</b> inside your Pokeball</span></li>
+              <li><span>Your Pokémon pops out! Tap ♪ for sound</span></li>
+            </ol>
+            <div class="tip">Tip: use good light and hold your phone 10–20 cm from the sticker. Walk around it, it follows you!</div>
+          </div>
+          <div class="foot"><img src="assets/np-logo.png" alt="" /><span>Nakama Prints</span></div>
+        </div>
+        <div class="tag"></div>`;
     }
 
     $('base').addEventListener('input', render);
     $('counts').addEventListener('input', e => {
       if (e.target.dataset.id) { counts[e.target.dataset.id] = Math.max(0, Math.min(40, +e.target.value || 0)); render(); }
     });
+    $('backs').addEventListener('change', render);
     $('print').addEventListener('click', () => window.print());
     render();
   </script>
