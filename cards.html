@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Nakama Prints · QR cards</title>
   <link rel="icon" href="assets/np-logo.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Luckiest+Guy&family=Press+Start+2P&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
   <style>
     :root { --ink: #0c0c0c; --pink: #d72d6b; --line: #d9d9de; }
@@ -24,21 +24,36 @@
 
     .sheet { display: flex; flex-wrap: wrap; gap: 6mm; justify-content: center; padding: 8mm; background: #fff; max-width: 210mm; margin: 0 auto 40px; }
     .slot { display: grid; gap: 2mm; justify-items: center; }
+    /* "Who's that Pokémon?" card: orange sunburst, halftone dots, yellow lettering with a blue outline */
     .card {
-      width: 45mm; height: 60mm; padding: 4mm 4mm 3mm;
+      --yellow: #ffcb05; --blue: #2a5ab0; --blue-deep: #1a3a80;
+      width: 50mm; height: 70mm; padding: 4.5mm 4mm 3.5mm; border-radius: 3mm; overflow: hidden;
       display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-      border: 0.8mm solid var(--ink); background: #fff;
-      clip-path: polygon(4mm 0, 100% 0, 100% calc(100% - 4mm), calc(100% - 4mm) 100%, 0 100%, 0 4mm);
+      background:
+        radial-gradient(circle, rgba(255,255,255,0.24) 0.26mm, transparent 0.3mm) 0 0 / 1.4mm 1.4mm,
+        radial-gradient(circle at 50% 26%, rgba(255,226,120,0.75), transparent 38%),
+        radial-gradient(circle at 50% 40%, transparent 55%, rgba(214,38,24,0.6) 100%),
+        repeating-conic-gradient(from 0deg at 50% 26%, #ff641a 0deg 6deg, #ff8f30 6deg 12deg);
       outline: 0.2mm dashed #bbb; outline-offset: 1mm;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
-    .card .top { display: flex; align-items: center; gap: 2mm; width: 100%; }
-    .card .top img { width: 8mm; }
-    .card .top span { font-weight: 700; font-size: 6.5pt; letter-spacing: 0.18em; text-transform: uppercase; }
-    .card h2 { margin: 0; font-family: 'Press Start 2P', monospace; font-weight: 400; font-size: 7.5pt; line-height: 1.5; text-align: center; }
-    .card h2 em { font-style: normal; color: var(--pink); }
-    .card .qr { width: 30mm; height: 30mm; }
+    .pk {
+      font-family: 'Luckiest Guy', 'Chakra Petch', sans-serif; color: var(--yellow); line-height: 0.95;
+      -webkit-text-stroke: 1.5mm var(--blue); paint-order: stroke fill;
+      text-shadow: 0 0.7mm 0 var(--blue-deep);
+    }
+    .card .title { display: grid; justify-items: center; margin-top: 0.5mm; }
+    .card .line1 { display: flex; align-items: center; gap: 2.2mm; font-size: 12pt; }
+    .card .line1 .q { font-size: 16pt; line-height: 1; color: var(--blue); -webkit-text-stroke: 1.1mm var(--yellow); text-shadow: 0 0.6mm 0 var(--blue-deep); transform: rotate(8deg); }
+    .card .line2 { font-size: 22pt; letter-spacing: 0.02em; margin-top: 1mm; }
+    .card .qr {
+      width: 31mm; height: 31mm; padding: 1.4mm; background: #fff; border-radius: 2mm;
+      border: 0.9mm solid var(--blue); box-shadow: 0 0.8mm 0 var(--blue-deep);
+    }
     .card .qr svg { width: 100%; height: 100%; display: block; }
-    .card .foot { font-size: 6pt; color: #45454c; text-align: center; }
+    .card .foot { display: flex; align-items: center; justify-content: center; gap: 1.6mm; width: 100%; }
+    .card .foot img { width: 6.5mm; filter: drop-shadow(0 0.4mm 0 rgba(0,0,0,0.35)); }
+    .card .foot .scan { font-size: 11pt; -webkit-text-stroke: 1.1mm var(--blue); text-shadow: 0 0.5mm 0 var(--blue-deep); }
     .tag { font-size: 8pt; color: #888; }
 
     @media print {
@@ -109,10 +124,12 @@
           slot.className = 'slot';
           slot.innerHTML = `
             <div class="card">
-              <div class="top"><img src="assets/np-logo.png" alt="" /><span>Nakama Prints</span></div>
-              <h2>Who's <em>inside</em>?</h2>
+              <div class="title">
+                <div class="line1 pk"><span>Who's</span><span class="q">?</span><span>That</span></div>
+                <div class="line2 pk">Pokémon</div>
+              </div>
               <div class="qr">${svg}</div>
-              <div class="foot">Scan, then point at the NP sticker</div>
+              <div class="foot"><img src="assets/np-logo.png" alt="Nakama Prints" /><span class="scan pk">Scan me!</span></div>
             </div>
             <div class="tag">${S[id].name} · cut off</div>`;
           sheet.appendChild(slot);
