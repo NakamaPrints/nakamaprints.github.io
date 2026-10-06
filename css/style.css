@@ -136,8 +136,8 @@ h1 { margin: 0 0 22px; font-family: var(--pixel); font-weight: 400; font-size: c
   display: flex; gap: 12px; align-items: center; padding: 10px; border-radius: 8px;
   background: #dfe9d3; border: 3px solid #181818; box-shadow: inset 0 0 0 3px #b9c9a8;
 }
-.dex-portrait { flex: none; width: 96px; height: 96px; display: grid; place-items: center; background: #f4f8ee; border: 2px solid #181818; border-radius: 6px; }
-.dex-portrait canvas { width: 96px; height: 96px; image-rendering: pixelated; }
+.dex-portrait { flex: none; width: 80px; height: 80px; display: grid; place-items: center; background: #f4f8ee; border: 2px solid #181818; border-radius: 6px; }
+.dex-portrait canvas { width: 80px; height: 80px; image-rendering: pixelated; }
 .dex-meta { min-width: 0; color: #1d2a16; }
 .dex-meta p { margin: 0; }
 .dex-no { font-family: var(--pixel); font-size: 10px; color: #4b5d3c; }
@@ -147,8 +147,8 @@ h1 { margin: 0 0 22px; font-family: var(--pixel); font-weight: 400; font-size: c
 .dex-types span { padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; color: #fff; background: var(--t, #777); }
 .dex-hw { font-size: 13px; color: #3d4d30; }
 .dex-text {
-  margin: 12px 0 0; min-height: 5.6em; padding: 10px 12px; border-radius: 6px;
-  font-family: var(--pixel); font-size: 11px; line-height: 1.8; color: #fff; background: #1b1b1f; border: 3px solid #181818;
+  margin: 10px 0 0; min-height: 4.8em; padding: 9px 11px; border-radius: 6px;
+  font-family: var(--pixel); font-size: 10px; line-height: 1.75; color: #fff; background: #1b1b1f; border: 3px solid #181818;
 }
 
 /* ---------- no-camera preview ---------- */
@@ -164,6 +164,9 @@ h1 { margin: 0 0 22px; font-family: var(--pixel); font-weight: 400; font-size: c
 }
 .stage-sprite { position: absolute; left: 50%; top: 66%; width: min(82vw, 420px); aspect-ratio: 1; transform: translate(-50%, -88%); }
 .stage-sprite canvas { width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; }
+/* while the Pokédex is open, lift the preview Pokémon above it */
+.stage-sprite, .stage-floor { transition: top 300ms ease-out; }
+.dex-open .stage-sprite, .dex-open .stage-floor { top: 40%; }
 .stage-hint { position: absolute; left: 0; right: 0; top: calc(64px + env(safe-area-inset-top)); margin: 0; text-align: center; font-size: 13px; color: var(--muted); }
 
 /* MindAR puts the camera <video> (z-index -2) and the 3D canvas inside #ar-root, sized from #ar-root.

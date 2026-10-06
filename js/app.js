@@ -96,6 +96,7 @@
       pc.drawImage(makeCreature().frames['000'], 0, 0, 96, 96);
       show($('btn-dex'), false);
       show($('dex'));
+      document.body.classList.add('dex-open');
 
       // voice: your clip if there is one, otherwise the device's text-to-speech
       const clip = NakamaSfx.clip('dex-' + id);
@@ -125,6 +126,7 @@
       clearTimeout(this.timer);
       if (this.voice) { this.voice.stop(); this.voice = null; }
       if (!$('dex').hidden) { show($('dex'), false); this.showButton(); }
+      document.body.classList.remove('dex-open');
     },
   };
   $('btn-dex').addEventListener('click', () => pokedex.open());
