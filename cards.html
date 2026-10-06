@@ -26,57 +26,57 @@
        so they line up when the printer flips the sheet on its long edge. */
     .page { width: 194mm; min-height: 281mm; margin: 0 auto 24px; padding: 6mm 0; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
     .page-label { width: 194mm; margin: 0 auto 6px; font-size: 12px; font-weight: 700; color: #6b6b72; }
-    .grid { display: grid; grid-template-columns: repeat(3, 50mm); grid-auto-rows: 77mm; gap: 6mm; justify-content: center; }
-    .slot { display: grid; grid-template-rows: 70mm auto; gap: 2mm; justify-items: center; }
+    .grid { display: grid; grid-template-columns: repeat(3, 60mm); grid-auto-rows: 87mm; gap: 5mm; justify-content: center; }
+    .slot { display: grid; grid-template-rows: 80mm auto; gap: 2mm; justify-items: center; }
     /* "Who's that Pokémon?" card: orange sunburst, halftone dots, yellow lettering with a blue outline */
     .card {
       --yellow: #ffcb05; --blue: #2a5ab0; --blue-deep: #1a3a80;
-      width: 50mm; height: 70mm; padding: 4.5mm 4mm 3.5mm; border-radius: 3mm; overflow: hidden;
+      width: 60mm; height: 80mm; padding: 5.4mm 4.8mm 4.2mm; border-radius: 3.6mm; overflow: hidden;
       display: flex; flex-direction: column; align-items: center; justify-content: space-between;
       background:
-        radial-gradient(circle, rgba(255,255,255,0.24) 0.26mm, transparent 0.3mm) 0 0 / 1.4mm 1.4mm,
+        radial-gradient(circle, rgba(255,255,255,0.24) 0.31mm, transparent 0.36mm) 0 0 / 1.68mm 1.68mm,
         radial-gradient(circle at 50% 26%, rgba(255,226,120,0.75), transparent 38%),
         radial-gradient(circle at 50% 40%, transparent 55%, rgba(214,38,24,0.6) 100%),
         repeating-conic-gradient(from 0deg at 50% 26%, #ff641a 0deg 6deg, #ff8f30 6deg 12deg);
-      outline: 0.2mm dashed #bbb; outline-offset: 1mm;
+      outline: 0.24mm dashed #bbb; outline-offset: 1.2mm;
       -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
     .pk {
       font-family: 'Luckiest Guy', 'Chakra Petch', sans-serif; color: var(--yellow); line-height: 0.95;
-      -webkit-text-stroke: 1.5mm var(--blue); paint-order: stroke fill;
-      text-shadow: 0 0.7mm 0 var(--blue-deep);
+      -webkit-text-stroke: 1.8mm var(--blue); paint-order: stroke fill;
+      text-shadow: 0 0.84mm 0 var(--blue-deep);
     }
-    .card .title { display: grid; justify-items: center; margin-top: 0.5mm; }
-    .card .line1 { display: flex; align-items: center; gap: 2.2mm; font-size: 12pt; }
-    .card .line1 .q { font-size: 16pt; line-height: 1; color: var(--blue); -webkit-text-stroke: 1.1mm var(--yellow); text-shadow: 0 0.6mm 0 var(--blue-deep); transform: translateY(-0.9mm) rotate(8deg); }
-    .card .line2 { font-size: 22pt; letter-spacing: 0.02em; margin-top: 1.6mm; }
+    .card .title { display: grid; justify-items: center; margin-top: 0.6mm; }
+    .card .line1 { display: flex; align-items: center; gap: 2.64mm; font-size: 14.4pt; }
+    .card .line1 .q { font-size: 19.2pt; line-height: 1; color: var(--blue); -webkit-text-stroke: 1.32mm var(--yellow); text-shadow: 0 0.72mm 0 var(--blue-deep); transform: translateY(-1.08mm) rotate(8deg); }
+    .card .line2 { font-size: 26.4pt; letter-spacing: 0.02em; margin-top: 1.92mm; }
     .card .qr {
-      width: 31mm; height: 31mm; padding: 1.4mm; background: #fff; border-radius: 2mm;
-      border: 0.9mm solid var(--blue); box-shadow: 0 0.8mm 0 var(--blue-deep);
+      width: 37.2mm; height: 37.2mm; padding: 1.68mm; background: #fff; border-radius: 2.4mm;
+      border: 1.08mm solid var(--blue); box-shadow: 0 0.96mm 0 var(--blue-deep);
     }
     .card .qr svg { width: 100%; height: 100%; display: block; }
-    .card .foot { display: flex; align-items: center; justify-content: center; gap: 1.6mm; width: 100%; }
-    .card .foot img { width: 6.5mm; filter: drop-shadow(0 0.4mm 0 rgba(0,0,0,0.35)); }
-    .card .foot .scan { font-size: 11pt; -webkit-text-stroke: 1.1mm var(--blue); text-shadow: 0 0.5mm 0 var(--blue-deep); }
-    .tag { font-size: 8pt; color: #888; min-height: 4mm; }
+    .card .foot { display: flex; align-items: center; justify-content: center; gap: 1.92mm; width: 100%; }
+    .card .foot img { width: 7.8mm; filter: drop-shadow(0 0.48mm 0 rgba(0,0,0,0.35)); }
+    .card .foot .scan { font-size: 13.2pt; -webkit-text-stroke: 1.32mm var(--blue); text-shadow: 0 0.6mm 0 var(--blue-deep); }
+    .tag { font-size: 9.6pt; color: #888; min-height: 4.8mm; }
 
     /* Back of the card: how-to steps on a light panel inside the same orange frame */
-    .back { justify-content: flex-start; gap: 2mm; padding: 4mm 3.5mm 3mm; }
-    .back .head { font-size: 13pt; margin-top: 0.5mm; }
+    .back { justify-content: flex-start; gap: 1.8mm; padding: 4mm 4.2mm 3mm; }
+    .back .head { font-size: 15.6pt; margin-top: 0.4mm; }
     .back .panel {
-      width: 100%; flex: 1; padding: 2.6mm 2.6mm 2.2mm; background: #fffaf0; border-radius: 2mm;
-      border: 0.7mm solid var(--blue); box-shadow: 0 0.7mm 0 var(--blue-deep);
-      display: flex; flex-direction: column; gap: 2.1mm; font-family: 'Chakra Petch', sans-serif; color: #1a2a4f;
+      width: 100%; flex: 1 1 auto; min-height: 0; padding: 2.6mm 3mm 2.2mm; background: #fffaf0; border-radius: 2.4mm;
+      border: 0.84mm solid var(--blue); box-shadow: 0 0.84mm 0 var(--blue-deep);
+      display: flex; flex-direction: column; gap: 1.8mm; font-family: 'Chakra Petch', sans-serif; color: #1a2a4f;
     }
-    .back ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2.1mm; counter-reset: st; }
-    .back li { counter-increment: st; display: flex; gap: 1.8mm; align-items: flex-start; font-size: 7pt; font-weight: 700; line-height: 1.2; }
+    .back ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.9mm; counter-reset: st; }
+    .back li { counter-increment: st; display: flex; gap: 2.16mm; align-items: flex-start; font-size: 8.4pt; font-weight: 700; line-height: 1.2; }
     .back li::before {
-      content: counter(st); flex: none; width: 4.2mm; height: 4.2mm; border-radius: 50%; display: grid; place-items: center;
-      background: var(--blue); color: var(--yellow); font-family: 'Luckiest Guy', sans-serif; font-size: 7.5pt; line-height: 1; padding-top: 0.3mm;
+      content: counter(st); flex: none; width: 5.04mm; height: 5.04mm; border-radius: 50%; display: grid; place-items: center;
+      background: var(--blue); color: var(--yellow); font-family: 'Luckiest Guy', sans-serif; font-size: 9pt; line-height: 1; padding-top: 0.36mm;
     }
     .back li b { color: #c8301c; }
-    .back .tip { margin-top: auto; padding-top: 1.6mm; border-top: 0.3mm dashed #c9b88f; font-size: 6pt; font-weight: 500; line-height: 1.3; color: #5a4a2a; }
-    .back .foot span { font-family: 'Chakra Petch', sans-serif; font-weight: 700; font-size: 6.5pt; letter-spacing: 0.16em; text-transform: uppercase; color: #fff; text-shadow: 0 0.4mm 0 rgba(0,0,0,0.35); }
+    .back .tip { margin-top: auto; padding-top: 1.4mm; border-top: 0.36mm dashed #c9b88f; font-size: 7.2pt; font-weight: 500; line-height: 1.3; color: #5a4a2a; }
+    .back .foot span { font-family: 'Chakra Petch', sans-serif; font-weight: 700; font-size: 7.8pt; letter-spacing: 0.16em; text-transform: uppercase; color: #fff; text-shadow: 0 0.48mm 0 rgba(0,0,0,0.35); }
 
     @media print {
       @page { size: A4; margin: 8mm; }
