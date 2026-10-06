@@ -102,6 +102,55 @@ h1 { margin: 0 0 22px; font-family: var(--pixel); font-weight: 400; font-size: c
 .dialog .more { position: absolute; right: 18px; bottom: 10px; font-size: 10px; color: var(--pink); animation: nudge 0.7s steps(2) infinite; }
 @keyframes nudge { 50% { transform: translateY(3px); } }
 
+/* ---------- Pokédex ---------- */
+.dex-btn {
+  pointer-events: auto; appearance: none; border: 0; cursor: pointer;
+  position: absolute; right: 16px; bottom: calc(128px + env(safe-area-inset-bottom));
+  display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 18px 0 12px;
+  font-family: var(--pixel); font-size: 11px; color: #fff; background: #d8102e;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  box-shadow: inset 0 -5px 0 #8f0a1f;
+  animation: dex-in 320ms cubic-bezier(.2, .9, .3, 1.3) both;
+}
+.dex-btn:active { transform: translateY(2px); }
+@keyframes dex-in { from { transform: translateY(14px) scale(0.9); opacity: 0; } }
+.dex-lens { flex: none; width: 18px; height: 18px; border-radius: 50%; border: 3px solid #fff; background: radial-gradient(circle at 35% 35%, #bfe9ff, #2b8fd8 60%, #155a92); }
+.dex-lens.big { width: 30px; height: 30px; border-width: 4px; }
+
+.dex {
+  pointer-events: auto; position: absolute; left: 12px; right: 12px; bottom: calc(14px + env(safe-area-inset-bottom));
+  max-width: 560px; margin: 0 auto; padding: 12px 14px 16px;
+  background: #d8102e; border: 4px solid #181818; border-radius: 14px 14px 14px 36px;
+  box-shadow: inset 0 -6px 0 #9a0b22, 0 8px 0 rgba(0,0,0,0.35);
+  animation: dex-open 300ms cubic-bezier(.2, .9, .3, 1.15) both;
+}
+@keyframes dex-open { from { transform: translateY(40px); opacity: 0; } }
+.dex-top { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.led { width: 10px; height: 10px; border-radius: 50%; border: 2px solid #181818; }
+.led.r { background: #ff5a5a; } .led.y { background: #ffd23a; } .led.g { background: #5fd35f; }
+.dex-close {
+  margin-left: auto; appearance: none; border: 0; cursor: pointer; width: 40px; height: 40px;
+  font-size: 18px; color: #fff; background: #8f0a1f; border-radius: 50%;
+}
+.dex-screen {
+  display: flex; gap: 12px; align-items: center; padding: 10px; border-radius: 8px;
+  background: #dfe9d3; border: 3px solid #181818; box-shadow: inset 0 0 0 3px #b9c9a8;
+}
+.dex-portrait { flex: none; width: 96px; height: 96px; display: grid; place-items: center; background: #f4f8ee; border: 2px solid #181818; border-radius: 6px; }
+.dex-portrait canvas { width: 96px; height: 96px; image-rendering: pixelated; }
+.dex-meta { min-width: 0; color: #1d2a16; }
+.dex-meta p { margin: 0; }
+.dex-no { font-family: var(--pixel); font-size: 10px; color: #4b5d3c; }
+.dex-name { font-family: var(--pixel); font-size: 14px; margin: 6px 0 !important; }
+.dex-species { font-size: 14px; font-weight: 700; }
+.dex-types { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0 4px !important; }
+.dex-types span { padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; color: #fff; background: var(--t, #777); }
+.dex-hw { font-size: 13px; color: #3d4d30; }
+.dex-text {
+  margin: 12px 0 0; min-height: 5.6em; padding: 10px 12px; border-radius: 6px;
+  font-family: var(--pixel); font-size: 11px; line-height: 1.8; color: #fff; background: #1b1b1f; border: 3px solid #181818;
+}
+
 /* ---------- no-camera preview ---------- */
 .stage {
   position: fixed; inset: 0; z-index: 10;

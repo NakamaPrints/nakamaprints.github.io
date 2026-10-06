@@ -64,6 +64,27 @@
       <p id="dialog-text"></p>
       <span class="more" id="dialog-more">▼</span>
     </div>
+
+    <!-- Pokédex: appears after the release, for anyone who wants to know more -->
+    <button class="dex-btn" id="btn-dex" hidden><span class="dex-lens" aria-hidden="true"></span>Pokédex</button>
+    <div class="dex" id="dex" hidden role="dialog" aria-label="Pokédex entry">
+      <div class="dex-top">
+        <span class="dex-lens big" aria-hidden="true"></span>
+        <span class="led r" aria-hidden="true"></span><span class="led y" aria-hidden="true"></span><span class="led g" aria-hidden="true"></span>
+        <button class="dex-close" id="dex-close" aria-label="Close Pokédex">✕</button>
+      </div>
+      <div class="dex-screen">
+        <div class="dex-portrait"><canvas id="dex-portrait" width="96" height="96"></canvas></div>
+        <div class="dex-meta">
+          <p class="dex-no" id="dex-no"></p>
+          <p class="dex-name" id="dex-name"></p>
+          <p class="dex-species" id="dex-species"></p>
+          <p class="dex-types" id="dex-types"></p>
+          <p class="dex-hw" id="dex-hw"></p>
+        </div>
+      </div>
+      <p class="dex-text" id="dex-text"></p>
+    </div>
   </div>
 
   <!-- No-camera preview stage -->
@@ -76,6 +97,7 @@
   <div id="ar-root"></div>
 
   <script src="js/sprites-data.js"></script>
+  <script src="js/pokedex.js"></script>
   <script src="js/creature.js"></script>
   <script src="js/sfx.js"></script>
   <script src="js/app.js"></script>

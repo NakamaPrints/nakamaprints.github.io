@@ -78,6 +78,20 @@
     unlock() { ctx(); },
     // call after a tap, e.g. preload(['release', 'cry-4'])
     preload(names) { names.forEach(load); },
+    // Plays a longer clip (like a Pokédex voice line) and returns { duration, stop } so it can be cut short,
+    // or null when there's no file (or sound is off).
+    clip(name, vol = 1) {
+      const buf = samples[name];
+      const a = ctx();
+      if (!buf || !a || muted) return null;
+      const src = a.createBufferSource();
+      const g = a.createGain();
+      src.buffer = buf;
+      g.gain.value = vol;
+      src.connect(g).connect(a.destination);
+      src.start();
+      return { duration: buf.duration, stop() { try { src.stop(); } catch (e) {} } };
+    },
     release() {
       if (play('release')) return;
       [523, 659, 784, 1047].forEach((f, i) => note(f, i * 0.06, 0.09, 'square', 0.05));

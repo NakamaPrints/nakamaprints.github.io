@@ -73,17 +73,76 @@
     return [`${data.name} came out of the Pokeball!`, `${dex} ${data.name}, ${TYPE_WORD[data.type]} type. Your new partner!`];
   }
 
+  // ---------------------------------------------------------------- Pokédex
+  // Tapping the Pokédex button opens the entry and plays assets/sfx/dex-<id>.mp3 while the description
+  // types out. With no voice file, the phone's own text-to-speech voice reads it instead.
+  const entry = (window.NAKAMA_POKEDEX || {})[id];
+  const TYPE_COLOR = { Grass: '#3f9e3a', Poison: '#9241b8', Fire: '#e8582a', Water: '#2f7fd8', Electric: '#d9a400', Normal: '#8a8a7a', Flying: '#7d8fe0', Bug: '#86a01e', Psychic: '#e0457a' };
+  const pokedex = {
+    timer: null, voice: null,
+    showButton() { if (entry) show($('btn-dex')); },
+    open() {
+      if (!entry) return;
+      this.close();
+      dialog.queue = []; clearTimeout(dialog.timer); show($('dialog'), false);
+      $('dex-no').textContent = dex;
+      $('dex-name').textContent = data.name;
+      $('dex-species').textContent = entry.species;
+      $('dex-types').innerHTML = entry.types.map(t => `<span style="--t:${TYPE_COLOR[t] || '#777'}">${t}</span>`).join('');
+      $('dex-hw').textContent = `HT ${entry.height} · WT ${entry.weight}`;
+      const pc = $('dex-portrait').getContext('2d');
+      pc.imageSmoothingEnabled = false;
+      pc.clearRect(0, 0, 96, 96);
+      pc.drawImage(makeCreature().frames['000'], 0, 0, 96, 96);
+      show($('btn-dex'), false);
+      show($('dex'));
+
+      // voice: your clip if there is one, otherwise the device's text-to-speech
+      const clip = NakamaSfx.clip('dex-' + id);
+      let ms = entry.text.length * 55;
+      if (clip) {
+        this.voice = clip;
+        ms = clip.duration * 1000 * 0.92;
+      } else if (!NakamaSfx.muted && 'speechSynthesis' in window) {
+        const u = new SpeechSynthesisUtterance(entry.text);
+        const en = speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang));
+        u.voice = en.find(v => /google uk english male|daniel|male/i.test(v.name)) || en[0] || null;
+        u.rate = 0.95; u.pitch = 0.75;
+        speechSynthesis.cancel();
+        speechSynthesis.speak(u);
+        this.voice = { stop: () => speechSynthesis.cancel() };
+        ms = entry.text.length * 62;
+      }
+      // type the description out over the length of the voice line
+      const text = entry.text, el = $('dex-text');
+      const step = Math.max(18, ms / text.length);
+      let i = 0;
+      el.textContent = '';
+      const tick = () => { el.textContent = text.slice(0, ++i); if (i < text.length) this.timer = setTimeout(tick, step); };
+      tick();
+    },
+    close() {
+      clearTimeout(this.timer);
+      if (this.voice) { this.voice.stop(); this.voice = null; }
+      if (!$('dex').hidden) { show($('dex'), false); this.showButton(); }
+    },
+  };
+  $('btn-dex').addEventListener('click', () => pokedex.open());
+  $('dex-close').addEventListener('click', () => pokedex.close());
+  if ('speechSynthesis' in window) speechSynthesis.getVoices(); // starts loading the voice list early
+
   // ---------------------------------------------------------------- start
+  const sounds = ['release', 'cry-' + id, 'dex-' + id];
   $('btn-start').addEventListener('click', () => {
     NakamaSfx.unlock();
-    NakamaSfx.preload(['release', 'cry-' + id]);
+    NakamaSfx.preload(sounds);
     show($('screen-start'), false);
     if (params.has('demo')) startPreview(); else startAR();
   });
   $('btn-retry').addEventListener('click', () => location.reload());
   $('btn-preview').addEventListener('click', () => {
     NakamaSfx.unlock();
-    NakamaSfx.preload(['release', 'cry-' + id]);
+    NakamaSfx.preload(sounds);
     show($('screen-error'), false);
     startPreview();
   });
@@ -106,6 +165,7 @@
       requestAnimationFrame(loop);
     })(last);
     setTimeout(() => { c.appear(); setTimeout(() => dialog.say(introLines()), 700); }, 500);
+    setTimeout(() => pokedex.showButton(), 2400);
     $('stage').addEventListener('click', () => c.appear());
   }
 
@@ -254,7 +314,7 @@
       show($('scan'), false);
       if (!seen || performance.now() - lostAt > REAPPEAR_AFTER) {
         creature.appear();
-        if (!seen) setTimeout(() => dialog.say(introLines()), 700);
+        if (!seen) { setTimeout(() => dialog.say(introLines()), 700); setTimeout(() => pokedex.showButton(), 2400); }
         else setTimeout(() => dialog.say([`Go! ${data.name}!`]), 500);
       }
       seen = true;
