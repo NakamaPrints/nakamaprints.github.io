@@ -117,8 +117,11 @@ h1 { margin: 0 0 22px; font-family: var(--pixel); font-weight: 400; font-size: c
 .stage-sprite canvas { width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; }
 .stage-hint { position: absolute; left: 0; right: 0; top: calc(64px + env(safe-area-inset-top)); margin: 0; text-align: center; font-size: 13px; color: var(--muted); }
 
-/* MindAR puts its video and canvas straight on <body> */
-#ar-root a-scene, .a-canvas { z-index: 1 !important; }
+/* MindAR puts the camera <video> (z-index -2) and the 3D canvas inside #ar-root, sized from #ar-root.
+   It has to fill the screen and be its own layer, or the video ends up 0px tall / under the page background. */
+#ar-root { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
+#ar-root a-scene, #ar-root .a-canvas { z-index: 1 !important; }
+html.ar-on, html.ar-on body { background: transparent; }
 
 @media (prefers-reduced-motion: reduce) {
   .frame, .dialog .more { animation: none; }

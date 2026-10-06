@@ -181,27 +181,50 @@
       },
     });
 
-    // Turns the creature around the sticker's centre so it always faces the phone,
-    // like a paper cut-out that follows you as you walk around the ball.
+    // Keeps the creature facing the phone like a paper standee: it turns around the sticker's
+    // centre as you walk around the ball, and leans back (feet planted) as you look down from
+    // above, so it never shows up edge-on.
     AFRAME.registerComponent('nakama-face-camera', {
-      init() { this.v = new THREE.Vector3(); this.angle = null; },
+      init() {
+        this.v = new THREE.Vector3();
+        this.up = new THREE.Vector3();
+        this.q = new THREE.Quaternion();
+        this.angle = null;
+        this.tilt = Math.PI / 2;
+        this.holder = this.el.querySelector('[data-tilt]');
+      },
       tick() {
         const cam = this.el.sceneEl.camera;
-        if (!cam) return;
+        const anchor = this.el.parentNode.object3D;
+        // before the sticker is found the tracker's matrix is empty, and inverting it gives NaN
+        if (!cam || !anchor.visible) return;
         cam.getWorldPosition(this.v);
-        this.el.parentNode.object3D.worldToLocal(this.v);
-        if (Math.abs(this.v.x) + Math.abs(this.v.y) < 1e-4) return;
-        const target = Math.atan2(this.v.x, -this.v.y);
-        if (this.angle === null) this.angle = target;
-        let d = target - this.angle;
-        d = Math.atan2(Math.sin(d), Math.cos(d));
-        this.angle += d * 0.2;
-        this.el.object3D.rotation.z = this.angle;
+        anchor.worldToLocal(this.v);
+        const { x, y, z } = this.v;
+        if (![x, y, z].every(Number.isFinite)) return;
+        const flat = Math.hypot(x, y);
+        // Heading: line the creature's "up" up with the phone screen's up direction, laid onto the
+        // sticker. Works from the side and from straight above, and with the phone held sideways.
+        this.up.set(0, 1, 0).applyQuaternion(cam.getWorldQuaternion(this.q));
+        this.up.applyQuaternion(anchor.getWorldQuaternion(this.q).invert());
+        if (Math.hypot(this.up.x, this.up.y) > 1e-3 && Number.isFinite(this.up.x)) {
+          const target = Math.atan2(-this.up.x, this.up.y);
+          if (this.angle === null || !Number.isFinite(this.angle)) this.angle = target;
+          let d = target - this.angle;
+          d = Math.atan2(Math.sin(d), Math.cos(d));
+          this.angle += d * 0.2;
+          this.el.object3D.rotation.z = this.angle;
+        }
+        // 90 deg = standing up (phone level with the sticker), 0 = lying back (phone straight above)
+        const elev = Math.min(Math.max(Math.atan2(z, flat), 0), Math.PI / 2);
+        this.tilt += (Math.PI / 2 - elev - this.tilt) * 0.2;
+        if (this.holder) this.holder.object3D.rotation.x = this.tilt;
       },
     });
   }
 
   function buildScene() {
+    document.documentElement.classList.add('ar-on'); // let the camera video show through
     const half = SPRITE_SIZE / 2;
     $('ar-root').innerHTML = `
       <a-scene id="scene"
@@ -212,7 +235,7 @@
         <a-entity id="target" mindar-image-target="targetIndex: 0">
           <a-entity nakama-face-camera>
             <a-plane nakama-shadow width="0.62" height="0.31" position="0 0 0.002"></a-plane>
-            <a-entity rotation="90 0 0">
+            <a-entity data-tilt rotation="90 0 0">
               <a-plane nakama-sprite width="${SPRITE_SIZE}" height="${SPRITE_SIZE}" position="0 ${half + HOVER - SPRITE_SIZE * 2 / NAKAMA_TEX} 0"></a-plane>
             </a-entity>
           </a-entity>
