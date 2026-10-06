@@ -1,9 +1,9 @@
 // Nakama Pokeball AR: picks the creature from the link (?c=4), then either starts the camera and
-// waits for the NP sticker (marker), or with ?demo shows a no-camera preview.
+// waits for the NP coin (marker), or with ?demo shows a no-camera preview.
 (function () {
-  // ---- tuning (sizes are in marker widths: 1 = the sticker's width) ----
+  // ---- tuning (sizes are in marker widths: 1 = the coin's width) ----
   const SPRITE_SIZE = 1.25;   // how big the creature appears
-  const HOVER = 0.08;         // gap between the sticker and the creature's feet
+  const HOVER = 0.08;         // gap between the coin and the creature's feet
   const REAPPEAR_AFTER = 2500; // ms out of view before the release plays again
 
   const AFRAME_SRC = 'https://aframe.io/releases/1.5.0/aframe.min.js';
@@ -181,7 +181,7 @@
       },
     });
 
-    // Keeps the creature facing the phone like a paper standee: it turns around the sticker's
+    // Keeps the creature facing the phone like a paper standee: it turns around the coin's
     // centre as you walk around the ball, and leans back (feet planted) as you look down from
     // above, so it never shows up edge-on.
     AFRAME.registerComponent('nakama-face-camera', {
@@ -196,7 +196,7 @@
       tick() {
         const cam = this.el.sceneEl.camera;
         const anchor = this.el.parentNode.object3D;
-        // before the sticker is found the tracker's matrix is empty, and inverting it gives NaN
+        // before the coin is found the tracker's matrix is empty, and inverting it gives NaN
         if (!cam || !anchor.visible) return;
         cam.getWorldPosition(this.v);
         anchor.worldToLocal(this.v);
@@ -204,7 +204,7 @@
         if (![x, y, z].every(Number.isFinite)) return;
         const flat = Math.hypot(x, y);
         // Heading: line the creature's "up" up with the phone screen's up direction, laid onto the
-        // sticker. Works from the side and from straight above, and with the phone held sideways.
+        // coin. Works from the side and from straight above, and with the phone held sideways.
         this.up.set(0, 1, 0).applyQuaternion(cam.getWorldQuaternion(this.q));
         this.up.applyQuaternion(anchor.getWorldQuaternion(this.q).invert());
         if (Math.hypot(this.up.x, this.up.y) > 1e-3 && Number.isFinite(this.up.x)) {
@@ -215,7 +215,7 @@
           this.angle += d * 0.2;
           this.el.object3D.rotation.z = this.angle;
         }
-        // 90 deg = standing up (phone level with the sticker), 0 = lying back (phone straight above)
+        // 90 deg = standing up (phone level with the coin), 0 = lying back (phone straight above)
         const elev = Math.min(Math.max(Math.atan2(z, flat), 0), Math.PI / 2);
         this.tilt += (Math.PI / 2 - elev - this.tilt) * 0.2;
         if (this.holder) this.holder.object3D.rotation.x = this.tilt;
