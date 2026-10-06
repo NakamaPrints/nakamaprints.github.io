@@ -3,7 +3,7 @@
 A personal, non-commercial gift project. Open a Nakama Prints Pokeball, scan the QR card inside, point your phone
 at the NP sticker, and an 8-bit starter pops out in AR.
 
-- Live site: https://rohang1996.github.io/Nakama-AR-Whos-inside-Pokeball/
+- Live site: https://nakamaprints.github.io/
 - Bulbasaur `?c=1` · Charmander `?c=4` · Squirtle `?c=7`
 - No-camera preview: add `&demo`, e.g. `?c=4&demo` · all starters: `preview.html` · print QR cards: `cards.html`
 
