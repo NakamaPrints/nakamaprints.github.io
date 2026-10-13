@@ -173,6 +173,8 @@ h1 { margin: 0 0 22px; font-family: var(--pixel); font-weight: 400; font-size: c
    It has to fill the screen and be its own layer, or the video ends up 0px tall / under the page background. */
 #ar-root { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
 #ar-root a-scene, #ar-root .a-canvas { z-index: 1 !important; }
+/* A-Frame's own "Enter VR / AR" buttons: not used here */
+.a-enter-vr, .a-enter-ar, .a-enter-vr-button, .a-enter-ar-button, .a-orientation-modal { display: none !important; }
 html.ar-on, html.ar-on body { background: transparent; }
 
 @media (prefers-reduced-motion: reduce) {

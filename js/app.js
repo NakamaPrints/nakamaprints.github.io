@@ -291,7 +291,7 @@
     $('ar-root').innerHTML = `
       <a-scene id="scene"
         mindar-image="imageTargetSrc: ./targets/marker.mind; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0001; filterBeta: 0.001"
-        color-space="sRGB" renderer="colorManagement: true" vr-mode-ui="enabled: false"
+        color-space="sRGB" renderer="colorManagement: true" vr-mode-ui="enabled: false" xr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false" loading-screen="enabled: false">
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
         <a-entity id="target" mindar-image-target="targetIndex: 0">
