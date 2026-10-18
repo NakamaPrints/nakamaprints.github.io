@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#d8102e" />
+  <title>My Pokédex · Nakama Prints</title>
+  <link rel="icon" href="assets/np-logo.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/icon-180.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Pokédex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="page-scroll">
+  <main class="pdx">
+    <header class="pdx-head">
+      <div class="pdx-top">
+        <span class="dex-lens big" aria-hidden="true"></span>
+        <span class="led r" aria-hidden="true"></span><span class="led y" aria-hidden="true"></span><span class="led g" aria-hidden="true"></span>
+        <h1>My Pokédex</h1>
+      </div>
+      <div class="pdx-row">
+        <span id="trainer">Trainer</span>
+        <span class="pdx-count" id="count">0/12</span>
+      </div>
+      <div class="pdx-bar"><div id="bar"></div></div>
+      <span class="pdx-rare" id="rare">★ Rare found: 0 of 3</span>
+    </header>
+
+    <p class="pdx-empty" id="empty" hidden>Your Pokédex is empty. Open a Pokeball and scan the card inside it with your phone's camera!</p>
+    <div class="pdx-grid" id="grid" aria-live="polite"></div>
+
+    <div class="pdx-install" id="install" hidden>
+      <div class="pdx-install-text">
+        <b>Keep your Pokédex one tap away</b>
+        <span id="install-hint">Add it to your home screen. It opens like an app.</span>
+      </div>
+      <button class="pdx-install-btn" id="install-btn">Add</button>
+      <button class="pdx-x" id="install-close" aria-label="Not now">✕</button>
+    </div>
+
+    <footer class="pdx-foot">
+      <button class="btn" id="btn-scan">Scan new</button>
+    </footer>
+  </main>
+
+  <!-- one Pokémon's entry -->
+  <div class="pdx-sheet" id="sheet" hidden role="dialog" aria-label="Pokédex entry">
+    <div class="dex">
+      <div class="dex-top">
+        <span class="dex-lens big" aria-hidden="true"></span>
+        <span class="led r" aria-hidden="true"></span><span class="led y" aria-hidden="true"></span><span class="led g" aria-hidden="true"></span>
+        <span class="pdx-copies" id="sheet-copies"></span>
+        <button class="dex-close" id="sheet-close" aria-label="Close">✕</button>
+      </div>
+      <div class="dex-screen">
+        <div class="dex-portrait"><canvas id="sheet-portrait" width="96" height="96"></canvas></div>
+        <div class="dex-meta">
+          <p class="dex-no" id="sheet-no"></p>
+          <p class="dex-name" id="sheet-name"></p>
+          <p class="dex-species" id="sheet-species"></p>
+          <p class="dex-types" id="sheet-types"></p>
+          <p class="dex-hw" id="sheet-hw"></p>
+        </div>
+      </div>
+      <p class="dex-text" id="sheet-text"></p>
+    </div>
+  </div>
+
+  <!-- how to add a new one -->
+  <div class="pdx-sheet" id="scan-help" hidden role="dialog" aria-label="Scan a new Pokeball">
+    <div class="pdx-help">
+      <h2>New Pokeball?</h2>
+      <ol class="steps">
+        <li><span>Open it and take out the card</span></li>
+        <li><span>Point your phone's <b>camera</b> at the QR code</span></li>
+        <li><span>Tap the link, then <b>Release!</b></span></li>
+      </ol>
+      <button class="btn" id="scan-help-close">Got it</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/nakama-db.js"></script>
+  <script src="js/sprites-data.js"></script>
+  <script src="js/pokedex.js"></script>
+  <script src="js/creature.js"></script>
+  <script src="js/pokedex-page.js"></script>
+</body>
+</html>

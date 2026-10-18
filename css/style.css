@@ -69,6 +69,15 @@ h1 { margin: 0 0 22px; font-family: var(--pixel); font-weight: 400; font-size: c
 }
 .icon-btn.off { color: #6b6b72; text-decoration: line-through; }
 
+.testbar {
+  position: absolute; left: 0; right: 0; top: calc(68px + env(safe-area-inset-top));
+  padding: 10px 16px; display: flex; gap: 10px; align-items: center;
+  background: #ffd23a; color: #181818; border-bottom: 3px solid #181818; font-size: 14px; font-weight: 700;
+}
+.testbar b { font-family: var(--pixel); font-size: 10px; font-weight: 400; }
+.taken-portrait { width: 140px; height: 140px; margin: 0 0 18px; display: grid; place-items: center; border-radius: 50%; background: #17171b; border: 3px solid #2c2c33; }
+.taken-portrait canvas { width: 96px; height: 96px; image-rendering: pixelated; }
+
 .status {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
   padding: 12px 18px; font-family: var(--pixel); font-size: 11px; background: rgba(12,12,12,0.8);
@@ -105,14 +114,17 @@ h1 { margin: 0 0 22px; font-family: var(--pixel); font-weight: 400; font-size: c
 /* ---------- Pokédex ---------- */
 .dex-btn {
   pointer-events: auto; appearance: none; border: 0; cursor: pointer;
-  position: absolute; right: 16px; bottom: calc(128px + env(safe-area-inset-bottom));
-  display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 18px 0 12px;
-  font-family: var(--pixel); font-size: 11px; color: #fff; background: #d8102e;
+  position: absolute; left: 16px; bottom: calc(128px + env(safe-area-inset-bottom));
+  text-decoration: none;
+  display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 12px 0 10px;
+  font-family: var(--pixel); font-size: 10px; color: #fff; background: #d8102e;
   clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
   box-shadow: inset 0 -5px 0 #8f0a1f;
   animation: dex-in 320ms cubic-bezier(.2, .9, .3, 1.3) both;
 }
 .dex-btn:active { transform: translateY(2px); }
+.mydex-btn { left: auto; right: 16px; color: #fff; }
+.mydex-btn:hover { color: #fff; }
 @keyframes dex-in { from { transform: translateY(14px) scale(0.9); opacity: 0; } }
 .dex-lens { flex: none; width: 18px; height: 18px; border-radius: 50%; border: 3px solid #fff; background: radial-gradient(circle at 35% 35%, #bfe9ff, #2b8fd8 60%, #155a92); }
 .dex-lens.big { width: 30px; height: 30px; border-width: 4px; }
@@ -180,3 +192,51 @@ html.ar-on, html.ar-on body { background: transparent; }
 @media (prefers-reduced-motion: reduce) {
   .frame, .dialog .more { animation: none; }
 }
+
+/* ---------- My Pokédex page ---------- */
+html:has(body.page-scroll), body.page-scroll { overflow: auto; height: auto; min-height: 100%; }
+.pdx { max-width: 560px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+.pdx-head {
+  padding: calc(18px + env(safe-area-inset-top)) 18px 16px; display: flex; flex-direction: column; gap: 10px;
+  background: #d8102e; border-bottom: 4px solid #181818; box-shadow: inset 0 -6px 0 #9a0b22;
+}
+.pdx-top { display: flex; align-items: center; gap: 10px; }
+.pdx-top h1 { margin: 0 0 0 auto; font-size: 14px; line-height: 1.4; }
+.pdx-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font-size: 15px; font-weight: 700; }
+.pdx-count { font-family: var(--pixel); font-size: 12px; }
+.pdx-bar { height: 10px; background: #8f0a1f; border: 2px solid #181818; }
+.pdx-bar div { height: 100%; width: 0; background: #ffd23a; transition: width 400ms ease-out; }
+.pdx-rare { font-size: 13px; font-weight: 700; color: #ffe3e8; }
+.pdx-empty { margin: 18px 16px 0; font-size: 16px; line-height: 1.5; color: #d9d9de; text-align: center; }
+.pdx-grid { padding: 16px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.pdx-slot {
+  position: relative; min-height: 128px; box-sizing: border-box; padding: 8px 6px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  background: #18181c; border: 3px solid #2c2c33; color: #6b6b74; font-family: var(--ui);
+}
+.pdx-slot.caught { background: #eef4e6; border-color: #181818; color: #1d2a16; cursor: pointer; }
+.pdx-slot.rare { border-color: #e9b640; }
+.pdx-slot.rare:not(.caught) { background: #1b1810; }
+.pdx-slot canvas { width: 72px; height: 72px; image-rendering: pixelated; }
+.pdx-q { width: 72px; height: 72px; display: grid; place-items: center; font-family: var(--pixel); font-size: 30px; color: #3a3a42; }
+.pdx-slot.rare .pdx-q, .pdx-slot.rare:not(.caught) .pdx-name { color: #e9b640; }
+.pdx-no { font-family: var(--pixel); font-size: 8px; color: #8d8d95; }
+.pdx-slot.caught .pdx-no { color: #4b5d3c; }
+.pdx-name { font-size: 12px; font-weight: 700; }
+.pdx-badge { position: absolute; right: -6px; top: -8px; padding: 3px 6px; background: #ffd23a; color: #181818; border: 2px solid #181818; font-family: var(--pixel); font-size: 8px; }
+.pdx-install {
+  margin: 0 16px 12px; padding: 12px 10px 12px 14px; display: flex; align-items: center; gap: 10px;
+  background: #121215; border: 2px solid #d72d6b;
+}
+.pdx-install-text { flex: 1; display: flex; flex-direction: column; gap: 2px; font-size: 14px; color: #d9d9de; }
+.pdx-install-text b { color: #fff; font-size: 15px; }
+.pdx-install-btn { min-height: 44px; padding: 0 16px; border: 0; background: #d72d6b; color: #fff; font-family: var(--pixel); font-size: 10px; cursor: pointer; }
+.pdx-x { width: 44px; height: 44px; border: 0; background: transparent; color: #a7a7ad; font-size: 16px; cursor: pointer; }
+.pdx-foot { margin-top: auto; padding: 14px 16px calc(22px + env(safe-area-inset-bottom)); border-top: 1px solid #2c2c33; display: flex; justify-content: center; }
+.pdx-foot .btn { width: 100%; }
+.pdx-sheet { position: fixed; inset: 0; z-index: 40; display: flex; align-items: flex-end; justify-content: center; padding: 12px 12px calc(14px + env(safe-area-inset-bottom)); background: rgba(0, 0, 0, 0.6); }
+.pdx-sheet .dex { position: relative; left: auto; right: auto; bottom: auto; width: 100%; }
+.pdx-copies { margin-left: 8px; font-size: 13px; font-weight: 700; color: #ffe3e8; }
+.pdx-help { width: 100%; max-width: 520px; box-sizing: border-box; padding: 24px 22px; background: #121215; border-top: 4px solid #d72d6b; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.pdx-help h2 { margin: 0; font-family: var(--pixel); font-weight: 400; font-size: 15px; }
+.pdx-help .steps { margin: 0; }

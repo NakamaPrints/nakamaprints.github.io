@@ -21,6 +21,9 @@
     input[type=number] { width: 90px; }
     button { font: inherit; font-weight: 700; padding: 11px 20px; border: 0; color: #fff; background: var(--pink); cursor: pointer; }
     .warn { color: #a81f50; font-weight: 700; }
+    .controls .batch-info { font-weight: 700; color: var(--ink); }
+    .controls .note { padding: 12px 14px; border: 2px dashed var(--line); background: #fff; }
+    code { font-size: 12px; background: #ececf0; padding: 1px 5px; }
 
     /* One .page per printed A4 side: fronts, then (optionally) the matching backs, mirrored left/right
        so they line up when the printer flips the sheet on its long edge. */
@@ -101,21 +104,27 @@
 <body>
   <div class="controls">
     <h1>Cards &amp; coins</h1>
-    <p>One card goes inside each Pokeball. All cards look the same, so the surprise stays hidden. The label under each card
-       (cut it off) tells you which creature it opens. Print at 100% / actual size.</p>
-    <div class="row">
-      <label>Link to your live AR page (GitHub Pages)
-        <input type="url" id="base" placeholder="https://yourname.github.io/nakama-ar/" />
-      </label>
+    <p>One card goes with each Pokeball. All cards look the same, so the surprise stays hidden. Every card has its own code:
+       the first phone that scans it registers that Pokémon in its Pokédex. The label under each card (cut it off) tells you
+       which Pokémon it is. Print at 100% / actual size.</p>
+    <div id="card-tools">
+      <p class="batch-info" id="batch-info"></p>
+      <div class="row">
+        <label>Link to your live AR page (GitHub Pages)
+          <input type="url" id="base" placeholder="https://nakamaprints.github.io/" />
+        </label>
+      </div>
+      <div class="row">
+        <label style="display:flex; align-items:center; gap:8px; font-weight:700;">
+          <input type="checkbox" id="backs" checked style="width:18px; height:18px;" /> Print the how-to steps on the back (double-sided)
+        </label>
+      </div>
+      <p id="duplex-hint">Printer settings: <b>double-sided, flip on long edge</b>, 100% / actual size. Each front page is followed by
+         its back page. Do one test sheet first and hold it up to a light to check the fronts and backs line up.</p>
     </div>
-    <div class="row" id="counts"></div>
-    <div class="row">
-      <label style="display:flex; align-items:center; gap:8px; font-weight:700;">
-        <input type="checkbox" id="backs" checked style="width:18px; height:18px;" /> Print the how-to steps on the back (double-sided)
-      </label>
-    </div>
-    <p id="duplex-hint">Printer settings: <b>double-sided, flip on long edge</b>, 100% / actual size. Each front page is followed by
-       its back page. Do one test sheet first and hold it up to a light to check the fronts and backs line up.</p>
+    <p class="note" id="no-batch" hidden>Cards are printed from your own computer, so the codes never go online.
+       Make a batch with <code>node --use-system-ca tools/make-cards.js &lt;batch&gt; 1:3,4:3,7:3</code>, start the local
+       server, then open <code>cards.html?batch=&lt;batch&gt;</code> on it. Coins can be printed from here.</p>
 
     <h2>NP coins</h2>
     <p>The same NP coin goes inside every Pokeball. It's what the camera looks for. Print on stiff <b>matte</b> cardstock
@@ -154,21 +163,22 @@
   </div>
   <div id="sheets"></div>
 
-  <script src="js/sprites-data.js"></script>
   <script>
-    const S = window.NAKAMA_SPRITES;
     const $ = id => document.getElementById(id);
-    const counts = {};
+    const params = new URLSearchParams(location.search);
+    const pretty = code => code.slice(0, 4) + '-' + code.slice(4);
+    let batch = null; // { batch, cards: [{ code, dex, name, rare }] } from print/<name>.json
 
-    // default base = the folder this page is served from
+    // default base = the folder this page is served from, or the live site when running locally
     const here = location.href.split(/[?#]/)[0].replace(/[^/]*$/, '');
-    $('base').value = here;
+    $('base').value = /localhost|127\.0\.0\.1/.test(here) ? 'https://nakamaprints.github.io/' : here;
 
-    for (const id of Object.keys(S)) {
-      counts[id] = 3;
-      const l = document.createElement('label');
-      l.innerHTML = `${S[id].name}<input type="number" min="0" max="40" value="3" data-id="${id}" />`;
-      $('counts').appendChild(l);
+    // Batches live in print/ next to web/, which is never published, so this only works on the local server.
+    async function loadBatch(name) {
+      if (!/^[a-z0-9_-]+$/i.test(name)) throw new Error('bad name');
+      const res = await fetch(`../print/${name}.json`, { cache: 'no-store' });
+      if (!res.ok) throw new Error('not found');
+      return res.json();
     }
 
     function qrSvg(text) {
@@ -189,11 +199,7 @@
       $('warn').textContent = 'Heads up: this link isn\'t a public https address, so phones won\'t be able to open it. Put in your GitHub Pages link before printing.';
 
       // every card to print, in order
-      const cards = [];
-      for (const id of Object.keys(S)) {
-        const svg = qrSvg(base + '?c=' + id);
-        for (let i = 0; i < counts[id]; i++) cards.push({ id, svg });
-      }
+      const cards = (batch ? batch.cards : []).map(c => ({ ...c, svg: qrSvg(base + '?k=' + c.code) }));
 
       const what = $('what').value;
       const withBacks = $('backs').checked;
@@ -294,7 +300,7 @@
           <div class="qr">${c.svg}</div>
           <div class="foot"><img src="assets/np-logo.png" alt="Nakama Prints" /><span class="scan pk">Scan me!</span></div>
         </div>
-        <div class="tag">${S[c.id].name} · cut off</div>`;
+        <div class="tag">${c.rare ? '★ ' : ''}${c.name} · ${pretty(c.code)} · cut off</div>`;
     }
 
     function backHtml() {
@@ -316,13 +322,52 @@
     }
 
     $('base').addEventListener('input', render);
-    $('counts').addEventListener('input', e => {
-      if (e.target.dataset.id) { counts[e.target.dataset.id] = Math.max(0, Math.min(40, +e.target.value || 0)); render(); }
-    });
     $('backs').addEventListener('change', render);
     for (const el of ['ssize', 'scount', 'what', 'coin2']) $(el).addEventListener('input', render);
     $('print').addEventListener('click', () => window.print());
-    render();
+
+    // No batch: coins only. With ?batch=<name>: that batch's cards, one QR per unique code.
+    function showBatch(info) {
+      $('card-tools').hidden = !batch;
+      $('no-batch').hidden = !!batch;
+      $('batch-info').textContent = info;
+      if (!batch) {
+        $('what').value = 'coins';
+        for (const o of $('what').options) o.disabled = o.value !== 'coins';
+      }
+      render();
+    }
+    const name = params.get('batch');
+    if (!name) showBatch('');
+    else loadBatch(name).then(b => {
+      batch = b;
+      const per = {};
+      for (const c of b.cards) per[c.name] = (per[c.name] || 0) + 1;
+      showBatch(`Batch "${b.batch}": ${b.cards.length} cards (` + Object.entries(per).map(([n, k]) => `${k} ${n}`).join(', ') + ').');
+    }).catch(() => {
+      showBatch('');
+      $('no-batch').insertAdjacentHTML('afterbegin', `<b>Couldn't open batch "${name.replace(/[^a-z0-9_-]/gi, '')}".</b> `);
+    });
+
+    // Export mode: ?batch=<name>&export=front&k=CODE (or ?export=back) shows just one card, edge to edge,
+    // on a transparent page, so it can be saved as a PNG. Optional &base= sets the link in the QR.
+    if (params.get('export') === 'back') {
+      document.body.innerHTML = backHtml();
+      exportStyle();
+    } else if (params.get('export') === 'front' && name) {
+      loadBatch(name).then(b => {
+        const b0 = (params.get('base') || $('base').value).replace(/([^/])$/, '$1/');
+        const c = b.cards.find(x => x.code === params.get('k')) || b.cards[0];
+        document.body.innerHTML = frontHtml({ ...c, svg: qrSvg(b0 + '?k=' + c.code) });
+        exportStyle();
+      });
+    }
+    function exportStyle() {
+      document.body.style.cssText = 'margin:0; background:transparent;';
+      const st = document.createElement('style');
+      st.textContent = '.tag{display:none} .card{outline:none}';
+      document.head.appendChild(st);
+    }
   </script>
 </body>
 </html>

@@ -6,6 +6,8 @@
   <meta name="theme-color" content="#0c0c0c" />
   <title>Nakama Prints · Who's inside?</title>
   <link rel="icon" href="assets/np-logo.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/icon-180.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
@@ -13,7 +15,24 @@
   <!-- A-Frame and MindAR are loaded only when the camera starts, see app.js -->
 </head>
 <body>
-  <!-- Start: shown when the link has a valid ?c= -->
+  <!-- Checking the card's code with the Pokédex -->
+  <section class="screen" id="screen-loading" hidden>
+    <img class="logo" src="assets/np-logo.png" alt="Nakama Prints" />
+    <p class="eyebrow">Nakama Prints</p>
+    <p class="body">Reading your card…</p>
+  </section>
+
+  <!-- The card's Pokémon already belongs to another trainer -->
+  <section class="screen" id="screen-taken" hidden>
+    <img class="logo" src="assets/np-logo.png" alt="Nakama Prints" />
+    <div class="taken-portrait"><canvas id="taken-portrait" width="96" height="96"></canvas></div>
+    <h1 id="taken-title">This Pokémon already has a trainer</h1>
+    <p class="body" id="taken-text">It lives in another trainer's Pokédex. You can still watch it come out of the Pokeball.</p>
+    <button class="btn" id="btn-watch">Watch in AR</button>
+    <p class="fine">Got your own Pokeball? Scan the card inside it.</p>
+  </section>
+
+  <!-- Start: shown when the link has a valid card -->
   <section class="screen" id="screen-start" hidden>
     <img class="logo" src="assets/np-logo.png" alt="Nakama Prints" />
     <p class="eyebrow">Nakama Prints</p>
@@ -31,8 +50,8 @@
   <section class="screen" id="screen-nocard" hidden>
     <img class="logo" src="assets/np-logo.png" alt="Nakama Prints" />
     <p class="eyebrow">Nakama Prints</p>
-    <h1>Scan your card</h1>
-    <p class="body">Every Pokeball comes with a small QR card. Scan it, then point your camera at the NP coin inside the Pokeball to find out who's waiting for you.</p>
+    <h1 id="nocard-title">Scan your card</h1>
+    <p class="body" id="nocard-text">Every Pokeball comes with a small QR card. Scan it, then point your camera at the NP coin inside the Pokeball to find out who's waiting for you.</p>
   </section>
 
   <!-- Camera problems -->
@@ -52,6 +71,7 @@
       <span>Nakama Prints</span>
       <button class="icon-btn" id="btn-mute" aria-label="Sound on or off">♪</button>
     </header>
+    <div class="testbar" id="testbar" hidden><b>TEST MODE</b> Nothing gets registered</div>
 
     <div class="status" id="status">Starting camera…</div>
 
@@ -68,6 +88,7 @@
 
     <!-- Pokédex: appears after the release, for anyone who wants to know more -->
     <button class="dex-btn" id="btn-dex" hidden><span class="dex-lens" aria-hidden="true"></span>Know more</button>
+    <a class="dex-btn mydex-btn" id="btn-mydex" href="pokedex.html" hidden><span class="dex-lens" aria-hidden="true"></span><span id="mydex-label">My Pokédex</span></a>
     <div class="dex" id="dex" hidden role="dialog" aria-label="Pokédex entry">
       <div class="dex-top">
         <span class="dex-lens big" aria-hidden="true"></span>
@@ -97,6 +118,9 @@
 
   <div id="ar-root"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/nakama-db.js"></script>
   <script src="js/sprites-data.js"></script>
   <script src="js/pokedex.js"></script>
   <script src="js/creature.js"></script>
