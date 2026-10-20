@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0c0c0c" />
+  <title>Privacy · Nakama Pokédex</title>
+  <link rel="icon" href="assets/np-logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .legal { max-width: 640px; margin: 0 auto; padding: calc(28px + env(safe-area-inset-top)) 20px calc(40px + env(safe-area-inset-bottom)); line-height: 1.6; color: #d9d9de; }
+    .legal img { width: 64px; height: auto; }
+    .legal h1 { margin: 16px 0 6px; font-size: 18px; color: #fff; }
+    .legal h2 { margin: 28px 0 8px; font-size: 16px; color: #fff; }
+    .legal p, .legal li { font-size: 16px; }
+    .legal ul { padding-left: 20px; }
+    .legal b { color: #fff; }
+    .legal a { color: #ff5c93; }
+    .legal .updated { color: var(--muted); font-size: 14px; }
+  </style>
+</head>
+<body class="page-scroll">
+  <main class="legal">
+    <img src="assets/np-logo.png" alt="Nakama Prints" />
+    <h1>Privacy</h1>
+    <p class="updated">Nakama Pokédex · last updated 20 October 2026</p>
+
+    <p>Nakama Pokédex is a small, free, personal project by Nakama Prints: 3D-printed Pokeballs given to friends and
+       family, with a web page that shows the Pokémon inside in augmented reality and keeps a Pokédex of the ones you
+       collect. It is not a commercial service and has no ads.</p>
+
+    <h2>Your camera</h2>
+    <p>The page uses your camera only to find the NP coin inside the Pokeball. The video stays on your phone. Nothing
+       is recorded, saved or uploaded.</p>
+
+    <h2>What we store</h2>
+    <ul>
+      <li><b>A trainer account.</b> The first time you add a Pokémon, your phone gets an anonymous guest account. It has
+          a trainer code (like NP-4821) and a trainer name you can choose.</li>
+      <li><b>Your Pokédex.</b> Which Pokémon you have, which card each one came from, and when you added it.</li>
+      <li><b>If you save your Pokédex</b> with Google or an email link, we store your email address (and, with Google,
+          the name on your Google account) so you can sign in again on another phone. We only ask Google for your
+          name and email, nothing else from your Google account.</li>
+      <li><b>On your phone</b> the page keeps your sign-in and a few settings (like sound on or off) in the browser's
+          local storage.</li>
+    </ul>
+
+    <h2>What we don't do</h2>
+    <ul>
+      <li>No ads, no tracking or analytics, no selling or sharing your data.</li>
+      <li>Other trainers only see your trainer name, trainer code and Pokémon, and only when you trade with them.</li>
+    </ul>
+
+    <h2>Where it's kept</h2>
+    <p>The data is stored with <a href="https://supabase.com" rel="noopener">Supabase</a>, the database service this
+       project runs on. The website itself is hosted on GitHub Pages.</p>
+
+    <h2>Deleting your data</h2>
+    <p>Want your Pokédex and account deleted? Send a message to
+       <a href="https://www.instagram.com/nakamaprints_in/" rel="noopener">@nakamaprints_in on Instagram</a> with your
+       trainer code, and it will be removed.</p>
+
+    <p><a href="./">← Back to Nakama Pokédex</a></p>
+  </main>
+</body>
+</html>
