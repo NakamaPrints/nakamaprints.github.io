@@ -346,11 +346,8 @@ html:has(body.page-scroll), body.page-scroll { overflow: auto; height: auto; min
 .pdx-auth-head { display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .pdx-auth-head canvas { width: 72px; height: 72px; image-rendering: pixelated; }
 .pdx-auth-head canvas[hidden] { display: none; }
-.pdx-google {
-  width: 100%; min-height: 54px; display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer;
-  border: 1px solid #dadce0; border-radius: 6px; background: #fff; color: #1f1f24; font: 700 17px var(--ui);
-}
-.pdx-google:disabled { opacity: 0.7; cursor: progress; }
+/* Google's own "Continue with Google" button is drawn into this box */
+.pdx-gbtn { width: 100%; min-height: 44px; display: flex; align-items: center; justify-content: center; color-scheme: light; }
 .pdx-fine { font-size: 13px; line-height: 1.45; color: #8d8d95; }
 .pdx-fine b { color: #fff; font-family: var(--pixel); font-size: 10px; font-weight: 400; }
 .pdx-eyebrow { font-size: 13px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #ff5c93; }

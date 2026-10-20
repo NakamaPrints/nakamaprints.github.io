@@ -1,6 +1,8 @@
 // Talks to the Nakama Pokédex database. Everyone is a Supabase account: the first time someone
 // adds a Pokémon, a silent guest account is created on this phone (no form, no password). Saving
 // links Google to that same account; signing in on another phone brings any guest Pokémon along.
+// Google sign-in happens in Google's own pop-up on this site (see pokedex-page.js), which hands us
+// an ID token; there is no redirect through the database's address.
 (function () {
   let client = null;
 
@@ -8,7 +10,7 @@
     if (!client) {
       const { supabaseUrl, supabaseKey } = window.NAKAMA_CONFIG;
       client = window.supabase.createClient(supabaseUrl, supabaseKey, {
-        auth: { persistSession: true, autoRefreshToken: true, storageKey: 'nakama-pokedex', detectSessionInUrl: true },
+        auth: { persistSession: true, autoRefreshToken: true, storageKey: 'nakama-pokedex' },
       });
     }
     return client;
@@ -20,7 +22,7 @@
     set(v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) {} },
     clear() { try { localStorage.removeItem(key); } catch (e) {} },
   });
-  const authState = store('np-auth'); // what we were doing when we left for Google: { intent, ticket }
+  const mergeTicket = store('np-merge'); // a guest's ticket, until a sign-in moves its Pokémon across
 
   // The current session; with create=true, quietly makes a guest account if there is none.
   async function session(create) {
@@ -38,23 +40,6 @@
     return data;
   }
 
-  // Errors Supabase puts on the address when it sends someone back from Google.
-  function redirectError() {
-    const q = new URLSearchParams(location.search);
-    const h = new URLSearchParams(location.hash.replace(/^#/, ''));
-    const code = q.get('error_code') || h.get('error_code') || q.get('error') || h.get('error');
-    if (!code) return null;
-    return { code, text: (q.get('error_description') || h.get('error_description') || '').replace(/\+/g, ' ') };
-  }
-
-  async function googleSignIn(returnTo, intent) {
-    const s = await session(false);
-    // A guest's Pokémon on this phone move into the account once signed in.
-    const ticket = s && s.user.is_anonymous ? await rpc('merge_ticket').catch(() => null) : null;
-    authState.set({ intent, ticket });
-    const { error } = await sb().auth.signInWithOAuth({ provider: 'google', options: { redirectTo: returnTo } });
-    if (error) { authState.clear(); throw error; }
-  }
 
   window.NakamaDB = {
     session,
@@ -114,42 +99,32 @@
       const d = (g && g.identity_data) || (user && user.user_metadata) || {};
       return String(d.given_name || d.full_name || d.name || '').trim().split(/\s+/)[0].slice(0, 12);
     },
-    // Save this guest Pokédex with Google. Google is linked to the same account, so the Pokémon and
-    // trainer code stay. Leaves the page for Google; finishAuth() picks up on the way back.
-    async saveWithGoogle(returnTo) {
+    // Use a Google ID token (from Google's sign-in pop-up) for this phone's Pokédex:
+    //   a guest:  link Google to the same account, so the Pokémon and trainer code stay -> { kind: 'saved' }
+    //             but if that Google account already has a Pokédex, sign in to it and move the
+    //             guest's Pokémon across                                    -> { kind: 'signedin', moved }
+    //   no one / someone else: sign in to that Google account's Pokédex    -> { kind: 'signedin', moved: 0 }
+    // `nonce` is the raw value whose SHA-256 was given to Google.
+    async google(token, nonce) {
       const s = await session(false);
-      if (!s || !s.user.is_anonymous) return googleSignIn(returnTo, 'signin');
-      authState.set({ intent: 'save' });
-      const { error } = await sb().auth.linkIdentity({ provider: 'google', options: { redirectTo: returnTo } });
-      if (error) { authState.clear(); throw error; }
-    },
-    // Sign in to a Pokédex saved earlier (a new phone, or the home-screen app).
-    signInWithGoogle(returnTo) { return googleSignIn(returnTo, 'signin'); },
-    // Call on page load. After a trip to Google it returns what happened:
-    //   { kind: 'saved' }                  the guest Pokédex is now saved to Google
-    //   { kind: 'signedin', moved, dex }   signed in; `moved` guest Pokémon came along
-    //   { kind: 'redirecting' }            that Google account already had a Pokédex: signing in to it
-    //   { kind: 'error', code, text }      cancelled or failed
-    // and null when the page wasn't opened by a sign-in.
-    async finishAuth(returnTo) {
-      const state = authState.get();
-      const err = redirectError();
-      if (!state && !err) return null;
-      if (err) {
-        // Saving to a Google account that already has a Pokédex: sign in to it and bring these Pokémon along.
-        if (state && state.intent === 'save' && /identity_already_exists|already linked|already exists/i.test(err.code + ' ' + err.text)) {
-          await googleSignIn(returnTo, 'signin');
-          return { kind: 'redirecting' };
+      if (s && s.user.is_anonymous) {
+        // Get the merge ticket first (a failed link can drop the guest session) and keep it until a
+        // sign-in uses it, so the guest's Pokémon still come along if it takes a second try.
+        const ticket = await rpc('merge_ticket').catch(() => null);
+        if (ticket) mergeTicket.set(ticket);
+        const { error } = await sb().auth.linkIdentity({ provider: 'google', token, nonce });
+        if (!error) { mergeTicket.clear(); return { kind: 'saved', user: await this.user() }; }
+        if (!/identity_already_exists|already linked|already exists/i.test(`${error.code} ${error.message}`)) {
+          if (!(await session(false))) await sb().auth.setSession({ access_token: s.access_token, refresh_token: s.refresh_token });
+          throw error;
         }
-        authState.clear();
-        return { kind: 'error', ...err };
       }
-      authState.clear();
-      const user = await this.user();
-      if (!this.isSaved(user)) return null; // went to Google but came back without signing in
-      if (state.intent === 'save') return { kind: 'saved', user };
-      const merged = state.ticket ? await rpc('finish_merge', { p_ticket: state.ticket }).catch(() => null) : null;
-      return { kind: 'signedin', user, moved: merged ? merged.moved : 0, dex: merged ? merged.dex : [] };
+      const { error } = await sb().auth.signInWithIdToken({ provider: 'google', token, nonce });
+      if (error) throw error;
+      const ticket = mergeTicket.get();
+      mergeTicket.clear();
+      const merged = ticket ? await rpc('finish_merge', { p_ticket: ticket }).catch(() => null) : null;
+      return { kind: 'signedin', user: await this.user(), moved: merged ? merged.moved : 0 };
     },
   };
 })();

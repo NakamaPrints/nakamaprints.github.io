@@ -5,7 +5,6 @@
   const show = (el, on = true) => { el.hidden = !on; };
   const TYPE_COLOR = { Grass: '#3f9e3a', Poison: '#9241b8', Fire: '#e8582a', Water: '#2f7fd8', Electric: '#d9a400', Normal: '#8a8a7a', Flying: '#7d8fe0', Bug: '#86a01e', Psychic: '#e0457a', Ghost: '#6a4c9c', Fairy: '#e07ab8' };
   const no = dex => 'No.' + String(dex).padStart(3, '0');
-  const RETURN_TO = location.origin + location.pathname; // where Google sends people back to
   const params = new URLSearchParams(location.search);
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
@@ -175,25 +174,68 @@
     show($('save-portrait'), !!now.firstDex);
     if (now.firstDex) paint($('save-portrait'), now.firstDex);
     show($('save-sheet'));
+    googleButton($('save-google'));
   }
   $('save-banner-btn').addEventListener('click', openSave);
   $('save-banner-close').addEventListener('click', later);
   $('save-later').addEventListener('click', () => { show($('save-sheet'), false); later(); });
+  $('empty-signin').addEventListener('click', () => { show($('signin-sheet')); googleButton($('signin-google')); });
+  $('signin-close').addEventListener('click', () => show($('signin-sheet'), false));
 
-  async function goGoogle(btn, fn) {
-    btn.disabled = true;
+  // ---- Google's own "Continue with Google" button. It signs in in a pop-up on this site, so Google
+  // shows nakamaprints.github.io (or, once Google has verified the app, "Nakama Pokédex").
+  let gsi = null, nonce = null;
+  function loadGsi() {
+    if (!gsi) {
+      gsi = new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = 'https://accounts.google.com/gsi/client';
+        s.async = true;
+        s.onload = res;
+        s.onerror = () => { gsi = null; rej(new Error('Google didn\'t load')); };
+        document.head.append(s);
+      });
+    }
+    return gsi;
+  }
+  async function newNonce() {
+    const raw = crypto.randomUUID() + crypto.randomUUID();
+    const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
+    return { raw, hashed: [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2, '0')).join('') };
+  }
+  async function googleButton(box) {
     try {
-      await fn(RETURN_TO); // leaves the page for Google
+      await loadGsi();
+      nonce = await newNonce(); // a fresh one for every try
+      google.accounts.id.initialize({
+        client_id: window.NAKAMA_CONFIG.googleClientId,
+        nonce: nonce.hashed,
+        callback: onGoogle,
+        ux_mode: 'popup',
+        context: 'signin',
+        auto_select: false,
+      });
+      box.innerHTML = '';
+      google.accounts.id.renderButton(box, {
+        type: 'standard', theme: 'outline', size: 'large', text: 'continue_with', shape: 'rectangular',
+        logo_alignment: 'center', width: Math.max(200, Math.min(400, box.clientWidth || 300)),
+      });
     } catch (e) {
-      btn.disabled = false;
-      for (const s of document.querySelectorAll('.pdx-sheet')) show(s, false);
-      message('Couldn\'t reach Google', 'Check your internet connection and try again.');
+      box.innerHTML = '<span class="pdx-fine">Couldn\'t load Google. Check your internet and try again.</span>';
     }
   }
-  $('save-google').addEventListener('click', () => goGoogle($('save-google'), r => NakamaDB.saveWithGoogle(r)));
-  $('signin-google').addEventListener('click', () => goGoogle($('signin-google'), r => NakamaDB.signInWithGoogle(r)));
-  $('empty-signin').addEventListener('click', () => show($('signin-sheet')));
-  $('signin-close').addEventListener('click', () => show($('signin-sheet'), false));
+  async function onGoogle(resp) {
+    const n = nonce;
+    for (const s of document.querySelectorAll('.pdx-sheet')) show(s, false);
+    try {
+      const result = await NakamaDB.google(resp.credential, n.raw);
+      await load();
+      afterAuth(result);
+    } catch (e) {
+      await load().catch(() => {});
+      message('Couldn\'t save your Pokédex', 'Something went wrong with Google. Please try again.');
+    }
+  }
 
   function message(title, text) {
     $('msg-title').textContent = title;
@@ -231,20 +273,14 @@
     $('name-save').disabled = false;
   });
 
-  // Back from Google: say what happened.
+  // After Google: say what happened.
   function afterAuth(auth) {
     if (auth.kind === 'saved') return openName('saved', NakamaDB.googleName(auth.user));
-    if (auth.kind === 'signedin') {
-      // a brand-new account (first time with this Google account): treat it like saving
-      if (now.trainer && now.trainer.name === 'Trainer') return openName('saved', NakamaDB.googleName(auth.user));
-      const hi = `Welcome back, ${now.trainer ? now.trainer.name : 'trainer'}!`;
-      return message(hi, auth.moved > 0
-        ? `We added the ${auth.moved === 1 ? 'Pokémon' : auth.moved + ' Pokémon'} from this phone to your Pokédex, so nothing is lost.`
-        : 'Your Pokédex is back.');
-    }
-    if (auth.kind === 'error' && !/access_denied/i.test(auth.code)) {
-      message('Couldn\'t save your Pokédex', 'Something went wrong with Google. Please try again.');
-    }
+    // a brand-new account (first time with this Google account): treat it like saving
+    if (now.trainer && now.trainer.name === 'Trainer') return openName('saved', NakamaDB.googleName(auth.user));
+    message(`Welcome back, ${now.trainer ? now.trainer.name : 'trainer'}!`, auth.moved > 0
+      ? `We added the ${auth.moved === 1 ? 'Pokémon' : auth.moved + ' Pokémon'} from this phone to your Pokédex, so nothing is lost.`
+      : 'Your Pokédex is back.');
   }
 
   // ---- add to home screen
@@ -277,12 +313,9 @@
 
   // ---- start
   (async () => {
-    const auth = await NakamaDB.finishAuth(RETURN_TO).catch(() => ({ kind: 'error', code: 'failed' }));
-    if (auth && auth.kind === 'redirecting') return; // off to Google again
-    history.replaceState(null, '', location.pathname + location.hash);
+    if (params.has('save')) history.replaceState(null, '', location.pathname);
     await load();
-    if (auth) afterAuth(auth);
-    else if (params.has('save') && !now.saved && now.found > 0) openSave();
+    if (params.has('save') && !now.saved && now.found > 0) openSave();
   })().catch(() => {
     $('trainer').textContent = 'Can\'t reach the Pokédex';
     $('empty').querySelector('h2').textContent = 'Can\'t load your Pokédex';
