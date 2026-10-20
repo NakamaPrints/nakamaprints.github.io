@@ -123,6 +123,9 @@ h1 { margin: 0 0 22px; font-family: var(--pixel); font-weight: 400; font-size: c
   animation: dex-in 320ms cubic-bezier(.2, .9, .3, 1.3) both;
 }
 .dex-btn:active { transform: translateY(2px); }
+/* above the text box while it's showing; down at the bottom when there's no text box */
+.dex-btn { transition: bottom 220ms ease-out; }
+#dialog[hidden] ~ .dex-btn { bottom: calc(16px + env(safe-area-inset-bottom)); }
 .mydex-btn { left: auto; right: 16px; color: #fff; }
 .mydex-btn:hover { color: #fff; }
 @keyframes dex-in { from { transform: translateY(14px) scale(0.9); opacity: 0; } }
