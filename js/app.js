@@ -175,6 +175,21 @@
       badgeTimer = setTimeout(() => show(b, false), 4500);
     }
 
+    // A guest just added a Pokémon: once the text box is done, ask whether to save the Pokédex.
+    // "Save" goes to My Pokédex, which opens the Google sheet.
+    async function askToSave() {
+      const user = await NakamaDB.user().catch(() => null);
+      if (!user || !user.is_anonymous) return;
+      setTimeout(() => {
+        if (!$('dex').hidden) return;
+        dialog.queue = []; clearTimeout(dialog.timer); show($('dialog'), false);
+        $('save-ask-text').textContent = `Your Pokédex lives on this phone only. Save it so ${data.name} is never lost!`;
+        show($('btn-mydex'), false);
+        show($('save-ask'));
+      }, 5000);
+    }
+    $('save-ask-later').addEventListener('click', () => { show($('save-ask'), false); show($('btn-mydex')); });
+
     $('btn-add').addEventListener('click', async () => {
       if (ctx.mode === 'test') {
         pokedex.close();
@@ -194,7 +209,10 @@
         added = true;
         setMydex(res);
         pokedex.close();
-        if (res.status === 'registered') stamp(res.copies > 1 ? `ADDED! ×${res.copies}` : `ADDED! ${res.found}/${res.total}`);
+        if (res.status === 'registered') {
+          stamp(res.copies > 1 ? `ADDED! ×${res.copies}` : `ADDED! ${res.found}/${res.total}`);
+          askToSave();
+        }
         dialog.say([res.status === 'mine' ? `${data.name} is already in your Pokédex!`
           : res.copies > 1 ? `Another ${data.name}! You have ${res.copies} now.`
           : `${data.name} was added to your Pokédex!`]);
@@ -498,7 +516,7 @@
         if (!seen || performance.now() - lostAt > REAPPEAR_AFTER) {
           creature.appear();
           if (!seen) onFirstRelease();
-          else setTimeout(() => { if ($('dex').hidden) dialog.say([`Go! ${data.name}!`]); }, 500);
+          else setTimeout(() => { if ($('dex').hidden && $('save-ask').hidden) dialog.say([`Go! ${data.name}!`]); }, 500);
         }
         seen = true;
       });

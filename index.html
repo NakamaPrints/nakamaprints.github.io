@@ -87,6 +87,15 @@
       <span class="more" id="dialog-more" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24"><path fill="currentColor" d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span>
     </div>
 
+    <!-- after adding, for a guest: save the Pokédex? -->
+    <div class="dialog save-ask" id="save-ask" hidden>
+      <p id="save-ask-text">Your Pokédex lives on this phone only. Save it so it's never lost!</p>
+      <div class="save-ask-btns">
+        <a class="save-ask-yes" href="pokedex.html?save=1">Save</a>
+        <button class="save-ask-later" id="save-ask-later">Later</button>
+      </div>
+    </div>
+
     <!-- Pokédex: opens by itself after the release and reads the entry out; then the Pokémon can be added -->
     <button class="dex-btn" id="btn-dex" hidden><span class="dex-lens" aria-hidden="true"></span>Know more</button>
     <a class="dex-btn mydex-btn" id="btn-mydex" href="pokedex.html" hidden><span class="dex-lens" aria-hidden="true"></span><span id="mydex-label">My Pokédex</span></a>

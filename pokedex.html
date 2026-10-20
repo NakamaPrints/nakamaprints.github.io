@@ -24,12 +24,20 @@
         <h1>My Pokédex</h1>
       </div>
       <div class="pdx-row">
-        <span id="trainer">Trainer</span>
+        <button class="pdx-trainer" id="trainer" disabled>Trainer</button>
         <span class="pdx-count" id="count">0/12</span>
       </div>
       <div class="pdx-bar"><div id="bar"></div></div>
       <span class="pdx-rare" id="rare">★ Rare found: 0 of 3</span>
     </header>
+
+    <!-- guest Pokédex: nudge to save it -->
+    <div class="pdx-save" id="save-banner" hidden>
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24"><path fill="#ff5c93" d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11z"/></svg>
+      <span id="save-banner-text">Your Pokémon are only on this phone</span>
+      <button class="pdx-save-btn" id="save-banner-btn">Save ›</button>
+      <button class="pdx-x" id="save-banner-close" aria-label="Not now">✕</button>
+    </div>
 
     <!-- a card this phone scanned but didn't add yet -->
     <section class="pdx-waiting" id="waiting" hidden>
@@ -45,6 +53,7 @@
       <div class="pdx-bigball" aria-hidden="true"></div>
       <h2>Your Pokédex is empty</h2>
       <p id="empty-text">Pokémon are hiding inside Nakama Pokeballs. Open one and scan the card that came with it to meet who's inside.</p>
+      <button class="pdx-link" id="empty-signin">Saved your Pokédex before? Sign in</button>
     </section>
     <div class="pdx-grid" id="grid" aria-live="polite"></div>
 
@@ -59,6 +68,7 @@
 
     <footer class="pdx-foot">
       <button class="btn" id="btn-scan">Scan new</button>
+      <a class="pdx-privacy" href="privacy.html">Privacy</a>
     </footer>
   </main>
 
@@ -95,6 +105,55 @@
         <li><span>Tap the link, then <b>Release!</b></span></li>
       </ol>
       <button class="btn" id="scan-help-close">Got it</button>
+    </div>
+  </div>
+
+  <!-- save the guest Pokédex -->
+  <div class="pdx-sheet" id="save-sheet" hidden role="dialog" aria-label="Save your Pokédex">
+    <div class="pdx-help pdx-auth">
+      <div class="pdx-auth-head">
+        <canvas id="save-portrait" width="96" height="96" aria-hidden="true"></canvas>
+        <h2 id="save-title">Keep your Pokémon safe</h2>
+      </div>
+      <p>Your Pokédex lives on this phone for now. Save it so you keep your Pokémon if you switch phones, and so you can trade with friends.</p>
+      <button class="pdx-google" id="save-google"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span>Continue with Google</span></button>
+      <button class="pdx-link" id="save-later">Later</button>
+      <span class="pdx-fine">No password. Your Pokémon come with you.</span>
+    </div>
+  </div>
+
+  <!-- sign in to a saved Pokédex (new phone, or the home-screen app) -->
+  <div class="pdx-sheet" id="signin-sheet" hidden role="dialog" aria-label="Sign in">
+    <div class="pdx-help pdx-auth">
+      <h2>Welcome back, trainer</h2>
+      <p>Sign in the same way you saved your Pokédex, and all your Pokémon come back.</p>
+      <button class="pdx-google" id="signin-google"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span>Continue with Google</span></button>
+      <button class="pdx-link" id="signin-close">Not now</button>
+      <span class="pdx-fine">New here? No sign-up needed. Just scan the card that came with your Pokeball.</span>
+    </div>
+  </div>
+
+  <!-- trainer name (after saving, or tap your name to change it) -->
+  <div class="pdx-sheet" id="name-sheet" hidden role="dialog" aria-label="Trainer name">
+    <form class="pdx-help pdx-auth" id="name-form">
+      <span class="pdx-eyebrow" id="name-eyebrow">Pokédex saved</span>
+      <h2 id="name-title">Welcome, trainer!</h2>
+      <p id="name-text">Your Pokédex is safe now. What's your name?</p>
+      <label class="pdx-field">
+        <span>Trainer name</span>
+        <input id="name-input" type="text" maxlength="12" autocomplete="nickname" required />
+      </label>
+      <span class="pdx-fine">Up to 12 letters. Friends see this name when you trade. Your trainer code <b id="name-code"></b> stays the same.</span>
+      <button class="btn" id="name-save" type="submit">That's me!</button>
+    </form>
+  </div>
+
+  <!-- a short message: welcome back, or something went wrong -->
+  <div class="pdx-sheet" id="msg-sheet" hidden role="dialog" aria-label="Message">
+    <div class="pdx-help pdx-auth">
+      <h2 id="msg-title"></h2>
+      <p id="msg-text"></p>
+      <button class="btn" id="msg-ok">OK</button>
     </div>
   </div>
 
