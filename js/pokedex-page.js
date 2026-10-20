@@ -92,18 +92,14 @@
   $('scan-help-close').addEventListener('click', () => show($('scan-help'), false));
 
   // ---- add to home screen
+  // Android only for now. On iPhone a home-screen app doesn't share storage with Safari, so a guest
+  // Pokédex would open empty there. Offer it on iPhone once trainers can save and sign in (Phase 3).
   const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   let dismissed = false;
   try { dismissed = localStorage.getItem('np-install-dismissed') === '1'; } catch (e) {}
   let deferred = null;
   if (!standalone && !dismissed) {
     window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; show($('install')); });
-    if (isIOS) {
-      $('install-hint').textContent = 'In Safari, tap Share, then "Add to Home Screen".';
-      show($('install-btn'), false);
-      show($('install'));
-    }
   }
   $('install-btn').addEventListener('click', async () => {
     if (!deferred) return;
