@@ -71,7 +71,8 @@
       <span>Nakama Prints</span>
       <button class="icon-btn" id="btn-mute" aria-label="Sound on or off">♪</button>
     </header>
-    <div class="testbar" id="testbar" hidden><b>TEST MODE</b> Nothing gets registered</div>
+    <div class="testbar" id="testbar" hidden><b>TEST MODE</b> Nothing gets added</div>
+    <div class="added-badge" id="added-badge" hidden></div>
 
     <div class="status" id="status">Starting camera…</div>
 
@@ -86,13 +87,16 @@
       <span class="more" id="dialog-more" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24"><path fill="currentColor" d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></span>
     </div>
 
-    <!-- Pokédex: appears after the release, for anyone who wants to know more -->
+    <!-- Pokédex: opens by itself after the release and reads the entry out; then the Pokémon can be added -->
     <button class="dex-btn" id="btn-dex" hidden><span class="dex-lens" aria-hidden="true"></span>Know more</button>
     <a class="dex-btn mydex-btn" id="btn-mydex" href="pokedex.html" hidden><span class="dex-lens" aria-hidden="true"></span><span id="mydex-label">My Pokédex</span></a>
     <div class="dex" id="dex" hidden role="dialog" aria-label="Pokédex entry">
       <div class="dex-top">
-        <span class="dex-lens big" aria-hidden="true"></span>
+        <span class="dex-lens big" id="dex-lens" aria-hidden="true"></span>
         <span class="led r" aria-hidden="true"></span><span class="led y" aria-hidden="true"></span><span class="led g" aria-hidden="true"></span>
+        <span class="dex-status" id="dex-status"></span>
+        <button class="dex-pill" id="dex-skip" hidden>Skip ›</button>
+        <button class="dex-pill" id="dex-replay" hidden>♪ Play again</button>
         <button class="dex-close" id="dex-close" aria-label="Close Pokédex">✕</button>
       </div>
       <div class="dex-screen">
@@ -106,6 +110,11 @@
         </div>
       </div>
       <p class="dex-text" id="dex-text"></p>
+      <div class="dex-progress" id="dex-progress" hidden><div id="dex-progress-bar"></div></div>
+      <div class="dex-actions" id="dex-actions" hidden>
+        <button class="dex-add" id="btn-add"><span class="mini-ball" aria-hidden="true"></span><span>Add to my Pokédex</span></button>
+        <a class="dex-later" id="dex-mydex" href="pokedex.html">My Pokédex</a>
+      </div>
     </div>
   </div>
 

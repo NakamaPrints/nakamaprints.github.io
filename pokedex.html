@@ -31,7 +31,21 @@
       <span class="pdx-rare" id="rare">★ Rare found: 0 of 3</span>
     </header>
 
-    <p class="pdx-empty" id="empty" hidden>Your Pokédex is empty. Open a Pokeball and scan the card inside it with your phone's camera!</p>
+    <!-- a card this phone scanned but didn't add yet -->
+    <section class="pdx-waiting" id="waiting" hidden>
+      <div class="pdx-waiting-pic"><canvas id="waiting-portrait" width="96" height="96"></canvas></div>
+      <div class="pdx-waiting-body">
+        <b id="waiting-title">Your Pokémon is waiting!</b>
+        <span id="waiting-text">You found it, but it's not in your Pokédex yet.</span>
+        <button class="pdx-waiting-add" id="waiting-add">Add it</button>
+      </div>
+    </section>
+
+    <section class="pdx-hero" id="empty" hidden>
+      <div class="pdx-bigball" aria-hidden="true"></div>
+      <h2>Your Pokédex is empty</h2>
+      <p id="empty-text">Pokémon are hiding inside Nakama Pokeballs. Open one and scan the card that came with it to meet who's inside.</p>
+    </section>
     <div class="pdx-grid" id="grid" aria-live="polite"></div>
 
     <div class="pdx-install" id="install" hidden>

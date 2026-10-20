@@ -18,12 +18,23 @@
     if (img) ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   }
 
+  // A card this phone scanned but didn't add: offer it here, as long as nobody else has added it since.
+  async function waitingCard() {
+    const p = NakamaDB.pending.get();
+    if (!p || !p.code) return null;
+    const card = await NakamaDB.peek(p.code).catch(() => null);
+    if (!card) return null;               // offline: try again next time
+    if (card.status !== 'unclaimed') { NakamaDB.pending.clear(); return null; }
+    return p;
+  }
+
   async function load() {
     const signedIn = !!(await NakamaDB.session(false));
-    const [list, mine, trainer] = await Promise.all([
+    const [list, mine, trainer, waiting] = await Promise.all([
       NakamaDB.pokemonList(),
       signedIn ? NakamaDB.myCollection() : [],
       signedIn ? NakamaDB.trainer() : null,
+      waitingCard(),
     ]);
     const copies = {};
     for (const c of mine) copies[c.dex] = (copies[c.dex] || 0) + 1;
@@ -31,11 +42,22 @@
     const rares = list.filter(p => p.rare);
 
     const who = !trainer ? '' : trainer.name === 'Trainer' ? 'Trainer' : `Trainer ${trainer.name}`;
-    $('trainer').textContent = trainer ? `${who} · ${trainer.code}` : 'No trainer yet';
+    $('trainer').textContent = trainer ? `${who} · ${trainer.code}` : 'No Pokémon yet';
     $('count').textContent = `${found}/${list.length}`;
     $('bar').style.width = (100 * found / list.length) + '%';
     $('rare').textContent = `★ Rare found: ${rares.filter(p => copies[p.dex]).length} of ${rares.length}`;
-    show($('empty'), found === 0);
+
+    show($('waiting'), !!waiting);
+    if (waiting) {
+      $('waiting-title').textContent = `${waiting.name.toUpperCase()} is waiting!`;
+      $('waiting-text').textContent = 'You found it, but it\'s not in your Pokédex yet.';
+      $('waiting-add').textContent = `Add ${waiting.name}`;
+      $('waiting-add').hidden = false;
+      paint($('waiting-portrait'), waiting.dex);
+    }
+    $('empty-text').textContent = `${list.length} Pokémon are hiding inside Nakama Pokeballs. Open one and scan the card that came with it to meet who's inside.`;
+    show($('empty'), found === 0 && !waiting);
+    $('btn-scan').textContent = found === 0 ? 'How to scan a card' : 'Scan new';
 
     const grid = $('grid');
     grid.innerHTML = '';
@@ -89,6 +111,24 @@
   $('sheet-close').addEventListener('click', () => show($('sheet'), false));
   $('sheet').addEventListener('click', e => { if (e.target === $('sheet')) show($('sheet'), false); });
   $('btn-scan').addEventListener('click', () => show($('scan-help')));
+
+  $('waiting-add').addEventListener('click', async () => {
+    const p = NakamaDB.pending.get();
+    if (!p) return show($('waiting'), false);
+    const btn = $('waiting-add');
+    btn.disabled = true;
+    const res = await NakamaDB.claim(p.code).catch(() => ({ status: 'error' }));
+    btn.disabled = false;
+    if (res.status === 'error') {
+      $('waiting-text').textContent = 'Couldn\'t add it. Check your internet and try again.';
+      return;
+    }
+    NakamaDB.pending.clear();
+    if (res.status === 'registered' || res.status === 'mine') return load();
+    $('waiting-title').textContent = 'Too late!';
+    $('waiting-text').textContent = `Someone else added this ${p.name} to their Pokédex first.`;
+    btn.hidden = true;
+  });
   $('scan-help-close').addEventListener('click', () => show($('scan-help'), false));
 
   // ---- add to home screen
@@ -115,7 +155,8 @@
 
   load().catch(() => {
     $('trainer').textContent = 'Can\'t reach the Pokédex';
-    $('empty').textContent = 'Check your internet connection and open this page again.';
+    $('empty').querySelector('h2').textContent = 'Can\'t load your Pokédex';
+    $('empty-text').textContent = 'Check your internet connection and open this page again.';
     show($('empty'));
   });
 })();

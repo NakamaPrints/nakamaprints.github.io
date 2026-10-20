@@ -1,6 +1,7 @@
 // Talks to the Nakama Pokédex database. Everyone is a Supabase account: the first time someone
-// registers a Pokémon, a silent guest account is created on this phone (no form, no password).
+// adds a Pokémon, a silent guest account is created on this phone (no form, no password).
 (function () {
+  const PENDING_KEY = 'np-pending';
   let client = null;
 
   function sb() {
@@ -36,10 +37,22 @@
       await session(false);
       return rpc('peek_card', { p_code: code });
     },
-    // Register the card's Pokémon to this phone's trainer (first scan wins).
+    // Add the card's Pokémon to this phone's trainer (first one to add it wins).
     async claim(code) {
       await session(true);
       return rpc('claim_card', { p_code: code });
+    },
+    // How many different Pokémon this phone has, out of all of them.
+    async progress() {
+      const [list, mine] = await Promise.all([this.pokemonList(), this.myCollection()]);
+      const have = new Set(mine.map(c => c.dex));
+      return { found: list.filter(p => have.has(p.dex)).length, total: list.length };
+    },
+    // The last card this phone scanned but didn't add yet: { code, dex, name }, so My Pokédex can offer it.
+    pending: {
+      get() { try { return JSON.parse(localStorage.getItem(PENDING_KEY)); } catch (e) { return null; } },
+      set(card) { try { localStorage.setItem(PENDING_KEY, JSON.stringify(card)); } catch (e) {} },
+      clear() { try { localStorage.removeItem(PENDING_KEY); } catch (e) {} },
     },
     async trainer() {
       await session(true);

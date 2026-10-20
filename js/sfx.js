@@ -38,17 +38,18 @@
 
   // ---- audio files (optional) ----
   const samples = {};   // name -> AudioBuffer once loaded, null while loading or missing
+  const loading = {};   // name -> promise that settles when the file is loaded (or missing)
 
   function load(name) {
-    if (name in samples) return;
+    if (name in loading) return loading[name];
     samples[name] = null;
     const a = ctx();
-    if (!a) return;
-    fetch(`assets/sfx/${name}.mp3`)
+    if (!a) return (loading[name] = Promise.resolve());
+    return (loading[name] = fetch(`assets/sfx/${name}.mp3`)
       .then(r => (r.ok ? r.arrayBuffer() : Promise.reject(new Error('missing'))))
       .then(buf => new Promise((res, rej) => a.decodeAudioData(buf, res, rej)))
       .then(decoded => { samples[name] = decoded; })
-      .catch(() => {});  // no file: the chiptune fallback is used
+      .catch(() => {}));  // no file: the chiptune fallback is used
   }
 
   // Plays a loaded file. Returns true if the file exists (even when muted), so callers
@@ -78,6 +79,8 @@
     unlock() { ctx(); },
     // call after a tap, e.g. preload(['release', 'cry-4'])
     preload(names) { names.forEach(load); },
+    // Resolves once a file has loaded (or turned out to be missing), or after `ms` at most.
+    ready(name, ms = 4000) { return Promise.race([load(name), new Promise(r => setTimeout(r, ms))]); },
     // Plays a longer clip (like a Pokédex voice line) and returns { duration, stop } so it can be cut short,
     // or null when there's no file (or sound is off).
     clip(name, vol = 1) {
