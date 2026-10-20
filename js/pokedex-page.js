@@ -155,15 +155,11 @@
   });
 
   // ---- saving the Pokédex
-  // A guest with Pokémon sees a banner until they save. "Later" hides it until they add another one.
-  const laterKey = 'np-save-later';
-  const laterAt = () => { try { return +sessionStorage.getItem(laterKey) || 0; } catch (e) { return 0; } };
-  function later() {
-    try { sessionStorage.setItem(laterKey, String(now.found)); } catch (e) {}
-    paintSaveBanner();
-  }
+  // A guest with Pokémon sees a banner every time they open My Pokédex, until they save.
+  // ✕ only hides it for this visit; "Later" in the sheet just closes the sheet.
+  let bannerClosed = false;
   function paintSaveBanner() {
-    const on = !!now.trainer && !now.saved && now.found > 0 && now.found > laterAt();
+    const on = !!now.trainer && !now.saved && now.found > 0 && !bannerClosed;
     show($('save-banner'), on);
     if (on) {
       $('save-banner-text').textContent = now.found === 1 ? `${now.firstName} is only on this phone` : `${now.found} Pokémon are only on this phone`;
@@ -177,8 +173,8 @@
     googleButton($('save-google'));
   }
   $('save-banner-btn').addEventListener('click', openSave);
-  $('save-banner-close').addEventListener('click', later);
-  $('save-later').addEventListener('click', () => { show($('save-sheet'), false); later(); });
+  $('save-banner-close').addEventListener('click', () => { bannerClosed = true; paintSaveBanner(); });
+  $('save-later').addEventListener('click', () => show($('save-sheet'), false));
   $('empty-signin').addEventListener('click', () => { show($('signin-sheet')); googleButton($('signin-google')); });
   $('signin-close').addEventListener('click', () => show($('signin-sheet'), false));
 
