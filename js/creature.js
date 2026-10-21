@@ -56,6 +56,58 @@
         return [{ kind: 'leaf', cx: x, cy: y, ang: rand(0, Math.PI * 2), rad: 4, vr: rand(10, 16), va: rand(3, 5) * (Math.random() < 0.5 ? -1 : 1), life: rand(900, 1300), age: 0 }];
       },
     },
+    // The rest of the types: little coloured pixels ("motes") from the head, each type its own way.
+    electric: {  // Thundershock: yellow sparks crackling out in every direction
+      spawn(x, y) {
+        if (Math.random() < 0.4) return [];
+        const a = rand(0, Math.PI * 2), sp = rand(25, 45);
+        return [{ kind: 'mote', x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, drag: 0.9, life: rand(250, 450), age: 0, colors: ['#ffffff', '#ffe040', '#f8b800'] }];
+      },
+    },
+    psychic: {  // Confusion: purple and pink sparkles circling outwards
+      spawn(x, y) {
+        if (Math.random() < 0.5) return [];
+        const a = rand(0, Math.PI * 2), sp = rand(10, 18);
+        return [{ kind: 'mote', x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: rand(800, 1200), age: 0, colors: ['#ffffff', '#e070ff', '#a040d0'] }];
+      },
+    },
+    ghost: {  // Night Shade: dark purple wisps drifting up
+      spawn(x, y) {
+        if (Math.random() < 0.5) return [];
+        return [{ kind: 'mote', x: x + rand(-8, 8), y: y + rand(-2, 6), vx: rand(-4, 4), vy: -rand(8, 14), life: rand(900, 1300), age: 0, colors: ['#c8a0ff', '#7840c0', '#402070'] }];
+      },
+    },
+    ice: {  // Ice Beam: icy sparkles falling like snow
+      spawn(x, y) {
+        if (Math.random() < 0.5) return [];
+        return [{ kind: 'mote', x: x + rand(-14, 14), y: y - rand(4, 10), vx: rand(-3, 3), vy: rand(8, 14), life: rand(900, 1300), age: 0, colors: ['#ffffff', '#bff0ff', '#70c8f0'] }];
+      },
+    },
+    fairy: {  // Sing: soft pink sparkles floating up
+      spawn(x, y) {
+        if (Math.random() < 0.6) return [];
+        return [{ kind: 'mote', x: x + rand(-6, 6), y, vx: rand(-6, 6), vy: -rand(10, 16), life: rand(900, 1300), age: 0, colors: ['#ffffff', '#ffb0d8', '#f070b0'] }];
+      },
+    },
+    normal: {  // a happy burst of white sparkles
+      spawn(x, y) {
+        if (Math.random() < 0.6) return [];
+        const a = rand(-Math.PI, 0), sp = rand(10, 20);
+        return [{ kind: 'mote', x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: rand(600, 900), age: 0, colors: ['#ffffff', '#fff6c0', '#d8d8e0'] }];
+      },
+    },
+    flying: {  // Gust: little puffs of air blowing sideways
+      spawn(x, y) {
+        if (Math.random() < 0.5) return [];
+        return [{ kind: 'mote', x: x + rand(-6, 6), y: y + rand(0, 10), vx: -rand(20, 32), vy: rand(-3, 3), life: rand(500, 800), age: 0, colors: ['#ffffff', '#e8f4ff', '#b8d0e8'] }];
+      },
+    },
+    bug: {  // Fury Cutter: green leaves slicing around
+      spawn(x, y) {
+        if (Math.random() < 0.6) return [];
+        return [{ kind: 'leaf', cx: x, cy: y, ang: rand(0, Math.PI * 2), rad: 6, vr: rand(14, 20), va: rand(4, 6) * (Math.random() < 0.5 ? -1 : 1), life: rand(700, 1000), age: 0 }];
+      },
+    },
   };
 
   class Creature {
@@ -78,9 +130,15 @@
       this.white = {};
       this.gold = {};
       for (const k in data.frames) {
+        if (typeof data.frames[k] === 'string') continue; // same picture as another frame, see below
         this.frames[k] = frameToCanvas(data.frames[k], data.palette, false);
         this.white[k] = frameToCanvas(data.frames[k], data.palette, [255, 255, 255]);
         this.gold[k] = frameToCanvas(data.frames[k], data.palette, [255, 210, 58]);
+      }
+      for (const k in data.frames) {
+        const same = data.frames[k];
+        if (typeof same !== 'string') continue;
+        this.frames[k] = this.frames[same]; this.white[k] = this.white[same]; this.gold[k] = this.gold[same];
       }
       this.rare = false;      // a rare Pokémon: gold flash, gold sparks, and it keeps twinkling
       this.nextTwinkle = 0;
@@ -157,6 +215,7 @@
         if (p.kind === 'ember') { p.vy -= 10 * s; p.vx *= 0.97; }
         if (p.kind === 'bubble') { p.vx *= 0.94; p.vy -= p.lift * s; }
         if (p.kind === 'spark') { p.vx *= 0.92; p.vy *= 0.92; }
+        if (p.kind === 'mote' && p.drag) { p.vx *= p.drag; p.vy *= p.drag; }
       }
       this.particles = this.particles.filter(p => p.age < p.life);
     }
@@ -234,6 +293,11 @@
       const px = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), w, h); };
       if (p.kind === 'spark') {
         px(p.x, p.y, k < 0.5 ? 2 : 1, k < 0.5 ? 2 : 1, p.color);
+      } else if (p.kind === 'mote') {
+        // bright and 2px when new, then the type's middle colour, then its dark colour as it fades
+        const c = p.colors[k < 0.3 ? 0 : k < 0.7 ? 1 : 2];
+        const s = k < 0.4 ? 2 : 1;
+        px(p.x - s / 2, p.y - s / 2, s, s, c);
       } else if (p.kind === 'twinkle') {
         // a little gold star that grows into a plus sign and fades back to a dot
         const arm = k > 0.25 && k < 0.75 ? 2 : 1;

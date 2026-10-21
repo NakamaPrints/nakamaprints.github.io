@@ -50,7 +50,8 @@
   <script src="js/creature.js"></script>
   <script src="js/sfx.js"></script>
   <script>
-    const MOVE_NAME = { fire: 'Ember', water: 'Bubble + Tail Whip', grass: 'Razor Leaf' };
+    const MOVE_NAME = { fire: 'Ember', water: 'Bubble + Tail Whip', grass: 'Razor Leaf', electric: 'Thundershock', psychic: 'Confusion',
+      ghost: 'Night Shade', ice: 'Ice Beam', fairy: 'Sing', normal: 'Sparkle', flying: 'Gust', bug: 'Fury Cutter' };
     let sound = false;
     const items = Object.keys(NAKAMA_SPRITES).map(id => {
       const d = NAKAMA_SPRITES[id];
