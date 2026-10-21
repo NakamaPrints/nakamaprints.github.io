@@ -9,6 +9,7 @@
 
   const rand = (a, b) => a + Math.random() * (b - a);
 
+  // `silhouette`: false for the real colours, or an [r, g, b] to paint the whole shape in (release flash)
   function frameToCanvas(rows, palette, silhouette) {
     const n = rows.length;
     const c = document.createElement('canvas');
@@ -21,7 +22,7 @@
         const v = DIGITS.indexOf(rows[y][x]);
         if (!v) continue;
         const o = (y * n + x) * 4;
-        const col = silhouette ? [255, 255, 255] : rgb[v];
+        const col = silhouette || rgb[v];
         img.data[o] = col[0]; img.data[o + 1] = col[1]; img.data[o + 2] = col[2]; img.data[o + 3] = 255;
       }
     }
@@ -75,10 +76,14 @@
       this.ctx.imageSmoothingEnabled = false;
       this.frames = {};
       this.white = {};
+      this.gold = {};
       for (const k in data.frames) {
         this.frames[k] = frameToCanvas(data.frames[k], data.palette, false);
-        this.white[k] = frameToCanvas(data.frames[k], data.palette, true);
+        this.white[k] = frameToCanvas(data.frames[k], data.palette, [255, 255, 255]);
+        this.gold[k] = frameToCanvas(data.frames[k], data.palette, [255, 210, 58]);
       }
+      this.rare = false;      // a rare Pokémon: gold flash, gold sparks, and it keeps twinkling
+      this.nextTwinkle = 0;
       this.particles = [];
       this.t = 0;
       this.phase = 'hidden';
@@ -98,9 +103,11 @@
       this.phase = 'release';
       this.phaseT = 0;
       this.particles = [];
-      for (let i = 0; i < 26; i++) {
-        const a = rand(0, Math.PI * 2), sp = rand(20, 46);
-        this.particles.push({ kind: 'spark', x: TEX / 2, y: this.sy + this.size * 0.6, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: rand(350, 650), age: 0, color: i % 3 ? '#ffffff' : PINK });
+      const n = this.rare ? 46 : 26;
+      for (let i = 0; i < n; i++) {
+        const a = rand(0, Math.PI * 2), sp = this.rare ? rand(24, 60) : rand(20, 46);
+        const color = this.rare ? ['#ffd23a', '#ffffff', '#fff1a8'][i % 3] : i % 3 ? '#ffffff' : PINK;
+        this.particles.push({ kind: 'spark', x: TEX / 2, y: this.sy + this.size * 0.6, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: this.rare ? rand(500, 1000) : rand(350, 650), age: 0, color });
       }
       this.onEvent('release');
     }
@@ -131,6 +138,10 @@
           this.moveUntil = t + 1400;
           this.nextMove = t + 1400 + rand(2800, 4200);
           this.onEvent('move', this.moveKind);
+        }
+        if (this.rare && t > this.nextTwinkle) {
+          this.nextTwinkle = t + rand(250, 600);
+          this.particles.push({ kind: 'twinkle', x: this.sx + rand(-4, this.size + 4), y: this.sy + rand(-4, this.size * 0.8), vx: 0, vy: -3, life: 650, age: 0 });
         }
         const spawning = this.moveKind === 'default' || (this.moveKind === 'bubble' && t - this.moveStart > 250);
         if (t < this.moveUntil && t > this.hopUntil && spawning) {
@@ -199,7 +210,7 @@
       if (this.phase === 'release') {
         const k = Math.min(this.phaseT / 350, 1);
         const flashWhite = this.phaseT < 350 || Math.floor(this.phaseT / 90) % 2 === 0;
-        const img = flashWhite ? this.white[key] : this.frames[key];
+        const img = flashWhite ? (this.rare ? this.gold : this.white)[key] : this.frames[key];
         const n = this.size;
         const size = Math.max(2, Math.round(n * (0.15 + 0.85 * k)));
         ctx.drawImage(img, Math.round(this.sx + n / 2 - size / 2), Math.round(this.sy + n - size), size, size);
@@ -223,6 +234,14 @@
       const px = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), w, h); };
       if (p.kind === 'spark') {
         px(p.x, p.y, k < 0.5 ? 2 : 1, k < 0.5 ? 2 : 1, p.color);
+      } else if (p.kind === 'twinkle') {
+        // a little gold star that grows into a plus sign and fades back to a dot
+        const arm = k > 0.25 && k < 0.75 ? 2 : 1;
+        px(p.x, p.y, 1, 1, '#ffffff');
+        for (let i = 1; i <= arm; i++) {
+          px(p.x - i, p.y, 1, 1, '#ffd23a'); px(p.x + i, p.y, 1, 1, '#ffd23a');
+          px(p.x, p.y - i, 1, 1, '#ffd23a'); px(p.x, p.y + i, 1, 1, '#ffd23a');
+        }
       } else if (p.kind === 'ember') {
         const c = k < 0.25 ? '#fff4a0' : k < 0.5 ? '#f8d030' : k < 0.75 ? '#f08030' : '#c03018';
         const s = k < 0.6 ? p.size + 1 : p.size;

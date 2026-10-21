@@ -148,6 +148,19 @@
     </form>
   </div>
 
+  <!-- every Pokémon found: celebrate (once), and the trainer card turns gold -->
+  <div class="pdx-sheet pdx-complete-sheet" id="complete-sheet" hidden role="dialog" aria-label="Pokédex complete">
+    <div class="pdx-help pdx-auth pdx-complete">
+      <div class="pdx-medal" aria-hidden="true">★</div>
+      <span class="pdx-eyebrow pdx-gold">Gen 1 Master</span>
+      <h2>Pokédex complete!</h2>
+      <p id="complete-text">You found them all. Your trainer card now has a gold border.</p>
+      <div class="pdx-complete-grid" id="complete-grid"></div>
+      <span class="pdx-fine">Gen 2 Pokeballs are coming. Keep your Pokédex!</span>
+      <button class="btn pdx-gold-btn" id="complete-ok">See my Pokédex</button>
+    </div>
+  </div>
+
   <!-- a short message: welcome back, or something went wrong -->
   <div class="pdx-sheet" id="msg-sheet" hidden role="dialog" aria-label="Message">
     <div class="pdx-help pdx-auth">

@@ -100,6 +100,13 @@
       [523, 659, 784, 1047].forEach((f, i) => note(f, i * 0.06, 0.09, 'square', 0.05));
       note([180, 60], 0, 0.25, 'triangle', 0.12);
     },
+    // a rare Pokémon came out: a short bright fanfare (or assets/sfx/rare.mp3 if there is one)
+    rare() {
+      if (play('rare')) return;
+      [784, 988, 1175, 1568].forEach((f, i) => note(f, 0.35 + i * 0.09, 0.12, 'square', 0.05));
+      note(1568, 0.75, 0.4, 'triangle', 0.06);
+      note(2093, 0.8, 0.35, 'sine', 0.04);
+    },
     cry(id) {
       if (play('cry-' + id)) return;
       (CRIES[id] || CRIES[4])();

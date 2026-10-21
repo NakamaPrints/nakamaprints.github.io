@@ -81,6 +81,19 @@
       <p>Point at the NP coin<br />inside your Pokeball</p>
     </div>
 
+    <!-- the camera hasn't found the coin for a while: tips -->
+    <div class="coin-help" id="coin-help" hidden role="dialog" aria-label="Can't find the NP coin?">
+      <h2>Can't find the NP coin?</h2>
+      <ul>
+        <li>Turn on a light, or move near a window</li>
+        <li>Hold your phone 10–20 cm above the coin</li>
+        <li>Get the whole coin in view, lying flat</li>
+        <li>Move the card off the coin if it's covering it</li>
+      </ul>
+      <button class="btn" id="coin-keep">Keep trying</button>
+      <button class="coin-preview" id="coin-preview">Preview without camera</button>
+    </div>
+
     <div class="dialog" id="dialog" hidden>
       <p id="dialog-text"></p>
       <!-- Material Icons "Keyboard Arrow Down" (Apache 2.0) -->
@@ -112,7 +125,7 @@
         <div class="dex-portrait"><canvas id="dex-portrait" width="96" height="96"></canvas></div>
         <div class="dex-meta">
           <p class="dex-no" id="dex-no"></p>
-          <p class="dex-name" id="dex-name"></p>
+          <p class="dex-name"><span id="dex-name"></span> <span class="dex-rare" id="dex-rare" hidden>★ RARE</span></p>
           <p class="dex-species" id="dex-species"></p>
           <p class="dex-types" id="dex-types"></p>
           <p class="dex-hw" id="dex-hw"></p>

@@ -60,6 +60,15 @@
     let creature = null;
     let arStarted = false;
 
+    // Rare Pokémon get a gold reveal. The database says which ones are rare; in test mode, &rare
+    // shows the rare reveal for any Pokémon (handy until a rare one has its sprite).
+    let isRare = ctx.mode === 'test' && params.has('rare');
+    NakamaDB.pokemonList().then(list => {
+      const p = list.find(x => x.dex === +id);
+      if (p && p.rare) isRare = true;
+      if (creature) creature.rare = isRare;
+    }, () => {});
+
     if (ctx.mode === 'test') show($('testbar'));
     if (ctx.mode === 'view') showTaken(); else show($('screen-start'));
 
@@ -67,9 +76,10 @@
     function makeCreature() {
       if (creature) return creature;
       creature = new NakamaCreature(id);
+      creature.rare = isRare;
       window.nakamaCreature = creature; // handy for poking at from the browser console
       creature.onEvent = (ev, kind) => {
-        if (ev === 'release') NakamaSfx.release();
+        if (ev === 'release') { NakamaSfx.release(); if (creature.rare) NakamaSfx.rare(); }
         if (ev === 'cry') NakamaSfx.cry(id);
         if (ev === 'move') NakamaSfx.move(data.type, kind);
       };
@@ -147,7 +157,8 @@
     }
 
     function onFirstRelease() {
-      const first = `${data.name} came out of the Pokeball!`;
+      const first = isRare ? `Whoa! A RARE ${data.name} appeared!` : `${data.name} came out of the Pokeball!`;
+      if (isRare) setTimeout(() => stamp('★ RARE ★', true), 500);
       setTimeout(() => {
         if (isMine) {
           dialog.say([first, `Welcome back, ${data.name}!`]);
@@ -167,9 +178,10 @@
     }
 
     let badgeTimer = null;
-    function stamp(text) {
+    function stamp(text, gold) {
       const b = $('added-badge');
       b.textContent = text;
+      b.classList.toggle('gold', !!gold);
       show(b, false); void b.offsetWidth; show(b); // restart the stamp animation
       clearTimeout(badgeTimer);
       badgeTimer = setTimeout(() => show(b, false), 4500);
@@ -177,7 +189,7 @@
 
     // A guest just added a Pokémon: once the text box is done, ask whether to save the Pokédex.
     // "Save" goes to My Pokédex, which opens the Google sheet.
-    async function askToSave() {
+    async function askToSave(delay) {
       const user = await NakamaDB.user().catch(() => null);
       if (!user || !user.is_anonymous) return;
       setTimeout(() => {
@@ -186,7 +198,7 @@
         $('save-ask-text').textContent = `Your Pokédex lives on this phone only. Save it so ${data.name} is never lost!`;
         show($('btn-mydex'), false);
         show($('save-ask'));
-      }, 5000);
+      }, delay);
     }
     $('save-ask-later').addEventListener('click', () => { show($('save-ask'), false); show($('btn-mydex')); });
 
@@ -209,13 +221,17 @@
         added = true;
         setMydex(res);
         pokedex.close();
+        // the very last one: the Pokédex is complete
+        const complete = res.status === 'registered' && res.copies === 1 && res.total > 0 && res.found === res.total;
         if (res.status === 'registered') {
-          stamp(res.copies > 1 ? `ADDED! ×${res.copies}` : `ADDED! ${res.found}/${res.total}`);
-          askToSave();
+          stamp(complete ? '★ COMPLETE! ★' : res.copies > 1 ? `ADDED! ×${res.copies}` : `ADDED! ${res.found}/${res.total}`, complete || isRare);
+          askToSave(complete ? 9500 : 5000); // after the text box has had its say
         }
-        dialog.say([res.status === 'mine' ? `${data.name} is already in your Pokédex!`
-          : res.copies > 1 ? `Another ${data.name}! You have ${res.copies} now.`
-          : `${data.name} was added to your Pokédex!`]);
+        dialog.say(complete
+          ? [`${data.name} was added to your Pokédex!`, `You found all ${res.total}! Your Pokédex is complete!`]
+          : [res.status === 'mine' ? `${data.name} is already in your Pokédex!`
+            : res.copies > 1 ? `Another ${data.name}! You have ${res.copies} now.`
+            : `${data.name} was added to your Pokédex!`]);
       } else {
         pokedex.close();
         dialog.say([`Someone else just added this ${data.name} to their Pokédex.`]);
@@ -238,6 +254,8 @@
         dialog.queue = []; clearTimeout(dialog.timer); show($('dialog'), false);
         $('dex-no').textContent = dex;
         $('dex-name').textContent = data.name;
+        $('dex').classList.toggle('rare', isRare);
+        show($('dex-rare'), isRare);
         $('dex-species').textContent = entry.species;
         $('dex-types').innerHTML = entry.types.map(t => `<span style="--t:${TYPE_COLOR[t] || '#777'}">${t}</span>`).join('');
         $('dex-hw').textContent = `HT ${entry.height} · WT ${entry.weight}`;
@@ -308,6 +326,7 @@
         dialog.queue = []; clearTimeout(dialog.timer); show($('dialog'), false);
         show($('dex-close'), false); show($('dex-replay'), false); show($('dex-skip'), false);
         $('dex-no').textContent = dex; $('dex-name').textContent = data.name;
+        $('dex').classList.toggle('rare', isRare); show($('dex-rare'), isRare);
         show($('dex')); show($('dex-actions'));
       },
       stop() {
@@ -507,11 +526,26 @@
       const target = $('target');
       let seen = false, lostAt = 0, lostTimer = null;
 
-      scene.addEventListener('arReady', () => { show($('status'), false); show($('scan')); });
+      // No coin after a while: show tips, with a way to watch without the camera.
+      let helpTimer = null;
+      const helpLater = ms => { clearTimeout(helpTimer); helpTimer = setTimeout(() => { if (!seen) { show($('scan'), false); show($('coin-help')); } }, ms); };
+      $('coin-keep').addEventListener('click', () => { show($('coin-help'), false); show($('scan')); helpLater(15000); });
+      $('coin-preview').addEventListener('click', () => {
+        clearTimeout(helpTimer);
+        show($('coin-help'), false);
+        try { scene.systems['mindar-image-system'].stop(); } catch (e) {}
+        $('ar-root').innerHTML = '';
+        document.documentElement.classList.remove('ar-on');
+        startPreview();
+      });
+
+      scene.addEventListener('arReady', () => { show($('status'), false); show($('scan')); helpLater(12000); });
       scene.addEventListener('arError', () => fail());
 
       target.addEventListener('targetFound', () => {
         clearTimeout(lostTimer);
+        clearTimeout(helpTimer);
+        show($('coin-help'), false);
         show($('scan'), false);
         if (!seen || performance.now() - lostAt > REAPPEAR_AFTER) {
           creature.appear();

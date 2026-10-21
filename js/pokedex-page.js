@@ -71,6 +71,9 @@
       s.textContent = 'Saved';
       tb.append(s);
     }
+    const complete = list.length > 0 && found === list.length;
+    document.querySelector('.pdx-head').classList.toggle('complete', complete); // gold trainer card
+    if (complete) celebrate(list, rares.length);
     $('count').textContent = `${found}/${list.length}`;
     $('bar').style.width = (100 * found / list.length) + '%';
     $('rare').textContent = `★ Rare found: ${rares.filter(p => copies[p.dex]).length} of ${rares.length}`;
@@ -135,6 +138,33 @@
       grid.append(slot);
     }
   }
+
+  // Every Pokémon found: a one-time celebration (shown again if more Pokémon are added to the set later).
+  function celebrate(list, rareCount) {
+    let seen = null;
+    try { seen = localStorage.getItem('np-complete-seen'); } catch (e) {}
+    if (seen === String(list.length)) return;
+    $('complete-text').textContent = `You found all ${list.length}, including all ${rareCount} rares. Your trainer card now has a gold border.`;
+    const grid = $('complete-grid');
+    grid.innerHTML = '';
+    for (const p of list) {
+      const cell = document.createElement('span');
+      if (p.rare) cell.className = 'rare';
+      if (window.NAKAMA_SPRITES[p.dex]) {
+        const cv = document.createElement('canvas');
+        cv.width = cv.height = 48;
+        cv.setAttribute('aria-hidden', 'true');
+        paint(cv, p.dex);
+        cell.append(cv);
+      } else {
+        cell.textContent = String(p.dex).padStart(3, '0');
+      }
+      grid.append(cell);
+    }
+    show($('complete-sheet'));
+    try { localStorage.setItem('np-complete-seen', String(list.length)); } catch (e) {}
+  }
+  $('complete-ok').addEventListener('click', () => show($('complete-sheet'), false));
 
   function openEntry(p, have) {
     const e = (window.NAKAMA_POKEDEX || {})[p.dex];
