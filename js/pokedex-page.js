@@ -1,9 +1,9 @@
-// My Pokédex: the trainer's collection, 12 slots, a card waiting to be added, saving the Pokédex with
+// My Pokédex: the trainer's collection (one slot per Pokémon in the database), a card waiting to be added, saving the Pokédex with
 // Google (and signing in to it on another phone), and the "add to home screen" nudge.
 (function () {
   const $ = id => document.getElementById(id);
   const show = (el, on = true) => { el.hidden = !on; };
-  const TYPE_COLOR = { Grass: '#3f9e3a', Poison: '#9241b8', Fire: '#e8582a', Water: '#2f7fd8', Electric: '#d9a400', Normal: '#8a8a7a', Flying: '#7d8fe0', Bug: '#86a01e', Psychic: '#e0457a', Ghost: '#6a4c9c', Fairy: '#e07ab8' };
+  const TYPE_COLOR = { Grass: '#3f9e3a', Poison: '#9241b8', Fire: '#e8582a', Water: '#2f7fd8', Electric: '#d9a400', Normal: '#8a8a7a', Flying: '#7d8fe0', Bug: '#86a01e', Psychic: '#e0457a', Ghost: '#6a4c9c', Fairy: '#e07ab8', Ice: '#4fb8c9' };
   const no = dex => 'No.' + String(dex).padStart(3, '0');
   const params = new URLSearchParams(location.search);
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);

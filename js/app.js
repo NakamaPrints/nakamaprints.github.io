@@ -227,7 +227,7 @@
     // assets/sfx/dex-<id>.mp3 while the description types out. With no voice file, the phone's own
     // text-to-speech voice reads it instead. When it's done, a new card offers "Add to my Pokédex".
     const entry = (window.NAKAMA_POKEDEX || {})[id];
-    const TYPE_COLOR = { Grass: '#3f9e3a', Poison: '#9241b8', Fire: '#e8582a', Water: '#2f7fd8', Electric: '#d9a400', Normal: '#8a8a7a', Flying: '#7d8fe0', Bug: '#86a01e', Psychic: '#e0457a' };
+    const TYPE_COLOR = { Grass: '#3f9e3a', Poison: '#9241b8', Fire: '#e8582a', Water: '#2f7fd8', Electric: '#d9a400', Normal: '#8a8a7a', Flying: '#7d8fe0', Bug: '#86a01e', Psychic: '#e0457a', Ghost: '#6a4c9c', Fairy: '#e07ab8', Ice: '#4fb8c9' };
     const pokedex = {
       timer: null, done: null, voice: null, run: 0,
       showButton() { if (entry) show($('btn-dex')); },
