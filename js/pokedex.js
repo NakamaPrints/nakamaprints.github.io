@@ -101,5 +101,8 @@ window.NAKAMA_POKEDEX = {
     species: 'Flame Pokémon', types: ['Fire', 'Flying'], height: '2.0 m', weight: '60.0 kg',
     text: 'Moltres, a one-of-a-kind legendary flame Pokémon. So powerful, its fire dust can bring early spring to wintery lands.',
   },
-  // 150 Mewtwo: waiting for a clip that has its Pokédex entry
+  150: {
+    species: 'Genetic Pokémon', types: ['Psychic'], height: '2.0 m', weight: '122.0 kg',
+    text: 'Mewtwo. Its DNA is almost the same as Mew\'s. However, its size and disposition are vastly different.',
+  },
 };
