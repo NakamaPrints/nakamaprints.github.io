@@ -17,12 +17,21 @@
     if (!portraits[dex] && window.NAKAMA_SPRITES[dex]) portraits[dex] = new NakamaCreature(String(dex)).frames['000'];
     return portraits[dex];
   }
-  function paint(canvas, dex) {
+  // Draws the Pokémon; with `shadow` (a colour) it's drawn as a flat "Who's that Pokémon?" silhouette.
+  function paint(canvas, dex, shadow) {
     const ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const img = portrait(dex);
-    if (img) ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    if (!img) return false;
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    if (shadow) {
+      ctx.globalCompositeOperation = 'source-in';
+      ctx.fillStyle = shadow;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.globalCompositeOperation = 'source-over';
+    }
+    return true;
   }
 
   // A card this phone scanned but didn't add: offer it here, as long as nobody else has added it since.
@@ -95,7 +104,16 @@
         slot.append(cv);
         slot.setAttribute('aria-label', `${p.name}, ${no(p.dex)}${have > 1 ? `, ${have} copies` : ''}`);
         slot.addEventListener('click', () => openEntry(p, have));
+      } else if (window.NAKAMA_SPRITES[p.dex]) {
+        // not found yet: its silhouette, like "Who's that Pokémon?"
+        const cv = document.createElement('canvas');
+        cv.width = cv.height = 72;
+        cv.className = 'pdx-shadow';
+        cv.setAttribute('aria-hidden', 'true');
+        paint(cv, p.dex, p.rare ? '#6e5a26' : '#3a3a42');
+        slot.append(cv);
       } else {
+        // no sprite on the site yet
         const q = document.createElement('span');
         q.className = 'pdx-q';
         q.textContent = '?';
