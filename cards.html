@@ -326,6 +326,10 @@
     for (const el of ['ssize', 'scount', 'what', 'coin2']) $(el).addEventListener('input', render);
     $('print').addEventListener('click', () => window.print());
 
+    // &coins=60&size=40 preset the coin count and size (handy for printing straight to PDF)
+    if (/^\d+$/.test(params.get('coins') || '')) $('scount').value = Math.min(200, +params.get('coins'));
+    if ([...$('ssize').options].some(o => o.value === params.get('size'))) $('ssize').value = params.get('size');
+
     // No batch: coins only. With ?batch=<name>: that batch's cards, one QR per unique code.
     function showBatch(info) {
       $('card-tools').hidden = !batch;
