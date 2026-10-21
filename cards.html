@@ -334,6 +334,8 @@
       if (!batch) {
         $('what').value = 'coins';
         for (const o of $('what').options) o.disabled = o.value !== 'coins';
+      } else if (['both', 'cards', 'coins'].includes(params.get('what'))) {
+        $('what').value = params.get('what'); // e.g. &what=cards for a cards-only PDF
       }
       render();
     }
