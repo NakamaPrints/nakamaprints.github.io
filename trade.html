@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0c0c0c" />
+  <title>Trade · Nakama Pokédex</title>
+  <link rel="icon" href="assets/np-logo.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/icon-180.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="page-scroll">
+  <main class="pdx trade">
+    <header class="trade-head">
+      <a class="trade-back" href="pokedex.html">← My Pokédex</a>
+      <h1 id="title">Trade</h1>
+    </header>
+
+    <section class="trade-sec" id="s-loading"><p class="trade-note">Loading…</p></section>
+
+    <!-- guests have to save their Pokédex first -->
+    <section class="trade-sec trade-center" id="s-save" hidden>
+      <div class="pdx-bigball" aria-hidden="true"></div>
+      <h2>Save your Pokédex to trade</h2>
+      <p id="save-text">Trades need a saved Pokédex, so your Pokémon are safe and your friend knows who they're trading with. It takes one tap, and you keep everything you've collected.</p>
+      <a class="btn" href="pokedex.html?save=1">Save my Pokédex</a>
+      <a class="pdx-link" href="pokedex.html">Not now</a>
+    </section>
+
+    <!-- 1: which of mine? -->
+    <section class="trade-sec" id="s-mine" hidden>
+      <p class="trade-lead">Pick one of your Pokémon to trade.</p>
+      <div class="pdx-grid" id="mine-grid"></div>
+      <p class="trade-note" id="mine-empty" hidden>You don't have any Pokémon to trade yet. Open a Pokeball first!</p>
+    </section>
+
+    <!-- 2: with who? -->
+    <section class="trade-sec" id="s-hub" hidden>
+      <div class="trade-chosen">
+        <div class="trade-portrait"><canvas id="give-portrait" width="96" height="96" aria-hidden="true"></canvas></div>
+        <div><span class="trade-small">You're trading</span><b id="give-name"></b></div>
+      </div>
+      <div class="trade-tabs" role="tablist">
+        <button role="tab" id="tab-code" aria-selected="true">With a friend</button>
+        <button role="tab" id="tab-person" aria-selected="false">In person</button>
+      </div>
+
+      <div id="hub-code">
+        <form class="trade-find" id="find-form">
+          <label for="find-code">Trade with a trainer code</label>
+          <div class="trade-find-row">
+            <input id="find-code" inputmode="numeric" autocomplete="off" placeholder="NP-1234" maxlength="10" required />
+            <button class="trade-go" type="submit">Find</button>
+          </div>
+          <span class="trade-error" id="find-error" hidden></span>
+          <span class="trade-small">No need to be friends. Ask them for the code on their Pokédex.</span>
+        </form>
+        <h3 class="trade-h3" id="friends-h" hidden>Or pick a friend</h3>
+        <div class="trade-friends" id="friend-list"></div>
+      </div>
+
+      <div id="hub-person" hidden>
+        <div class="trade-qr" id="qr"></div>
+        <p class="trade-lead">Your friend points their phone camera at this code, picks one of theirs, and you swap straight away.</p>
+        <p class="trade-status" id="person-status">Waiting for your friend…</p>
+      </div>
+    </section>
+
+    <!-- 3: pick from their Pokédex -->
+    <section class="trade-sec" id="s-theirs" hidden>
+      <div class="trade-who">
+        <span class="trade-avatar" id="their-initial">?</span>
+        <div><b id="their-name"></b><span class="trade-small" id="their-meta"></span></div>
+      </div>
+      <p class="trade-lead" id="their-lead">Tap the Pokémon you'd like.</p>
+      <div class="pdx-grid" id="their-grid"></div>
+      <div class="trade-bar">
+        <div class="trade-swap">
+          <canvas id="bar-give" width="72" height="72" aria-hidden="true"></canvas>
+          <span aria-hidden="true">⇄</span>
+          <canvas id="bar-want" width="72" height="72" aria-hidden="true"></canvas>
+        </div>
+        <span class="trade-bar-text" id="bar-text">Pick one of theirs</span>
+        <button class="btn" id="send-offer" disabled>Send offer</button>
+      </div>
+    </section>
+
+    <!-- 4: offer sent -->
+    <section class="trade-sec trade-center" id="s-sent" hidden>
+      <h2>Offer sent</h2>
+      <p class="trade-status" id="sent-waiting"></p>
+      <div class="trade-swap big">
+        <canvas id="sent-give" width="96" height="96" aria-hidden="true"></canvas>
+        <span aria-hidden="true">⇄</span>
+        <canvas id="sent-want" width="96" height="96" aria-hidden="true"></canvas>
+      </div>
+      <p id="sent-text"></p>
+      <a class="trade-wa" id="sent-wa" target="_blank" rel="noopener">Tell them on WhatsApp</a>
+      <a class="btn" href="pokedex.html">Back to my Pokédex</a>
+      <button class="pdx-link" id="sent-cancel">Cancel offer</button>
+    </section>
+
+    <!-- 5: someone's in-person trade QR -->
+    <section class="trade-sec" id="s-take" hidden>
+      <div class="trade-offer-card">
+        <div class="trade-portrait"><canvas id="take-portrait" width="96" height="96" aria-hidden="true"></canvas></div>
+        <div><span class="trade-small" id="take-from"></span><b id="take-name"></b></div>
+      </div>
+      <p class="trade-lead">Pick one of yours to give.</p>
+      <div class="pdx-grid" id="take-grid"></div>
+      <div class="trade-bar">
+        <span class="trade-bar-text" id="take-text">Pick one of yours</span>
+        <button class="btn" id="take-go" disabled>Swap now</button>
+      </div>
+    </section>
+
+    <!-- done -->
+    <section class="trade-sec trade-center" id="s-done" hidden>
+      <div class="trade-portrait big"><canvas id="done-portrait" width="96" height="96" aria-hidden="true"></canvas></div>
+      <span class="pdx-eyebrow">Trade complete</span>
+      <h2 id="done-title"></h2>
+      <p id="done-text"></p>
+      <div class="trade-friend-ask" id="done-friend" hidden>
+        <p id="done-friend-text"></p>
+        <button class="trade-go" id="done-add">Add friend</button>
+      </div>
+      <a class="btn" href="pokedex.html">See my Pokédex</a>
+    </section>
+
+    <section class="trade-sec trade-center" id="s-msg" hidden>
+      <h2 id="msg-title"></h2>
+      <p id="msg-text"></p>
+      <a class="btn" href="pokedex.html">Back to my Pokédex</a>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/nakama-db.js"></script>
+  <script src="js/sprites-data.js"></script>
+  <script src="js/creature.js"></script>
+  <script src="js/trade.js"></script>
+</body>
+</html>

@@ -77,9 +77,32 @@
     },
     async myCollection() {
       if (!(await session(false))) return [];
-      const { data, error } = await sb().from('collection').select('dex,obtained_at').order('obtained_at');
+      const { data, error } = await sb().from('collection').select('id,dex,obtained_at,obtained_via,card_code').order('obtained_at');
       if (error) throw error;
       return data;
+    },
+
+    // ---- trading (saved trainers only; the database checks every rule and does the swap)
+    // A guest trying to trade gets an error with hint 'save_first'.
+    needsSave(err) { return !!err && (err.hint === 'save_first' || /save your Pok/i.test(err.message || '')); },
+    trainerByCode(code) { return rpc('trainer_by_code', { p_code: code }); },
+    myFriends() { return rpc('my_friends'); },
+    addFriend(code) { return rpc('add_friend', { p_code: code }); },
+    removeFriend(code) { return rpc('remove_friend', { p_code: code }); },
+    offerTrade(give, code, wantDex) { return rpc('offer_trade', { p_give: give, p_code: code, p_want_dex: wantDex }); },
+    answerTrade(id, accept) { return rpc('answer_trade', { p_trade: id, p_accept: accept }); },
+    cancelTrade(id) { return rpc('cancel_trade', { p_trade: id }); },
+    openTrade(give) { return rpc('open_trade', { p_give: give }); },
+    peekTrade(token) { return rpc('peek_trade', { p_token: token }); },
+    takeTrade(token, dex) { return rpc('take_trade', { p_token: token, p_my_dex: dex }); },
+    async myTrades() {
+      if (!(await session(false))) return { incoming: [], outgoing: [], answers: [] };
+      return rpc('my_trades');
+    },
+    seenTrade(id) { return rpc('seen_trade', { p_trade: id }); },
+    async signOut() {
+      await sb().auth.signOut();
+      this.pending.clear();
     },
     async hasPokedex() {
       return !!(await session(false));

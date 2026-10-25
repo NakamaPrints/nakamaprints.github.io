@@ -58,7 +58,7 @@
     const found = list.filter(p => copies[p.dex]).length;
     const rares = list.filter(p => p.rare);
     const first = mine.length ? list.find(p => p.dex === mine[0].dex) : null;
-    Object.assign(now, { user, saved: NakamaDB.isSaved(user), trainer, found,
+    Object.assign(now, { user, saved: NakamaDB.isSaved(user), trainer, found, mine, list,
       firstName: first ? first.name.toUpperCase() : '', firstDex: first ? first.dex : null });
 
     const who = !trainer ? '' : trainer.name === 'Trainer' ? 'Trainer' : `Trainer ${trainer.name}`;
@@ -176,6 +176,19 @@
     $('sheet-text').textContent = e ? e.text : '';
     $('sheet-copies').textContent = have > 1 ? `You have ${have}` : '';
     paint($('sheet-portrait'), p.dex);
+    // where it came from, and what you can do with it
+    const items = (now.mine || []).filter(c => c.dex === p.dex);
+    const first = items[0], last = items[items.length - 1];
+    const day = d => new Date(d).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+    $('sheet-meta').textContent = !first ? ''
+      : first.obtained_via === 'trade' ? `Got in a trade on ${day(first.obtained_at)}`
+      : `Added ${day(first.obtained_at)}` + (first.card_code ? ` · from card ${first.card_code.slice(0, 4)}-${first.card_code.slice(4)}` : '');
+    const card = items.find(c => c.card_code);
+    show($('sheet-ar'), !!card);
+    if (card) $('sheet-ar').href = './?k=' + card.card_code;
+    // trade the newest copy, so the first one you found stays
+    $('sheet-trade').textContent = `Trade ${p.name.toUpperCase()}`;
+    $('sheet-trade').href = last ? 'trade.html?give=' + last.id : 'trade.html';
     show($('sheet'));
   }
   $('sheet-close').addEventListener('click', () => show($('sheet'), false));
@@ -275,6 +288,7 @@
       const result = await NakamaDB.google(resp.credential, n.raw);
       await load();
       afterAuth(result);
+      refreshTrades(); // e.g. "Finish your trade" if they saved to take a friend's trade
     } catch (e) {
       await load().catch(() => {});
       message('Couldn\'t save your Pokédex', 'Something went wrong with Google. Please try again.');
@@ -300,7 +314,191 @@
     $('name-code').textContent = now.trainer ? now.trainer.code : '';
     show($('name-sheet'));
   }
-  $('trainer').addEventListener('click', () => openName('rename'));
+  $('trainer').addEventListener('click', openProfile);
+
+  // ---- trainer profile: name, code, account, friends, sign out
+  async function openProfile() {
+    const t = now.trainer;
+    if (!t) return;
+    const named = t.name !== 'Trainer';
+    $('prof-initial').textContent = named ? t.name[0].toUpperCase() : '?';
+    $('prof-name').textContent = named ? t.name.toUpperCase() : 'TRAINER';
+    const rares = (now.list || []).filter(p => p.rare);
+    const have = new Set((now.mine || []).map(c => c.dex));
+    $('prof-count').textContent = `${now.found} of ${(now.list || []).length} · Rare ${rares.filter(p => have.has(p.dex)).length} of ${rares.length}`;
+    $('prof-name2').textContent = named ? t.name : 'Not set';
+    $('prof-code').textContent = t.code;
+    $('prof-copy').textContent = 'Copy';
+    const email = now.user && now.user.email;
+    $('prof-account').textContent = now.saved ? (email ? `Google · ${email}` : 'Saved') : 'Only on this phone';
+    show($('prof-save'), !now.saved);
+    show($('prof-signout'), now.saved);
+    show($('prof-friends-box'), now.saved);
+    show($('profile-sheet'));
+    if (now.saved) paintFriends();
+  }
+  async function paintFriends() {
+    const box = $('prof-friends');
+    const friends = await NakamaDB.myFriends().catch(() => []);
+    box.innerHTML = friends.length ? '' : '<span class="pdx-fine">No friends yet. Add one with their trainer code.</span>';
+    for (const f of friends) {
+      const row = document.createElement('div');
+      row.className = 'trade-friend';
+      const named = f.name !== 'Trainer';
+      row.innerHTML = '<span class="trade-avatar"></span><span class="trade-friend-text"><b></b><span class="trade-small"></span></span>'
+        + '<a class="pdx-mini">Trade</a><button class="pdx-x" aria-label="Remove friend">✕</button>';
+      row.querySelector('.trade-avatar').textContent = named ? f.name[0].toUpperCase() : '?';
+      row.querySelector('b').textContent = named ? f.name : 'Trainer';
+      row.querySelector('.trade-small').textContent = `${f.code} · ${f.found} Pokémon`;
+      row.querySelector('a').href = 'trade.html?with=' + encodeURIComponent(f.code);
+      row.querySelector('button').addEventListener('click', async () => {
+        await NakamaDB.removeFriend(f.code).catch(() => {});
+        paintFriends();
+      });
+      box.append(row);
+    }
+  }
+  $('prof-close').addEventListener('click', () => show($('profile-sheet'), false));
+  $('prof-rename').addEventListener('click', () => { show($('profile-sheet'), false); openName('rename'); });
+  $('prof-copy').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(now.trainer.code); $('prof-copy').textContent = 'Copied ✓'; }
+    catch (e) { $('prof-copy').textContent = now.trainer.code; }
+  });
+  $('prof-save').addEventListener('click', () => { show($('profile-sheet'), false); openSave(); });
+  $('prof-add-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    show($('prof-add-error'), false);
+    const r = await NakamaDB.addFriend($('prof-add-code').value).catch(() => ({ status: 'error' }));
+    const err = { not_found: 'No trainer has that code.', self: "That's your own code!", error: "Couldn't add them. Try again." }[r.status];
+    if (err) { $('prof-add-error').textContent = err; show($('prof-add-error')); return; }
+    $('prof-add-code').value = '';
+    paintFriends();
+  });
+  $('prof-signout').addEventListener('click', async () => {
+    await NakamaDB.signOut().catch(() => {});
+    location.reload();
+  });
+
+  // ---- trades: offers for me (accept / decline), my offers still waiting, and answers to mine
+  const NAME = dex => ((now.list || []).find(p => p.dex === dex) || { name: 'No.' + dex }).name.toUpperCase();
+  const whoName = t => (t && t.name && t.name !== 'Trainer' ? t.name : 'A trainer');
+  let answersShown = new Set();
+  async function refreshTrades() {
+    const box = $('trades');
+    const t = await NakamaDB.myTrades().catch(() => null);
+    let pendingTake = null;
+    try { pendingTake = localStorage.getItem('np-take'); } catch (e) {}
+    box.innerHTML = '';
+    if (pendingTake && now.saved) {
+      const a = document.createElement('a');
+      a.className = 'pdx-trade-card';
+      a.href = 'trade.html?take=' + encodeURIComponent(pendingTake);
+      a.innerHTML = '<b>Finish your trade</b><span>Your Pokédex is saved. Tap to go back to the trade ›</span>';
+      box.append(a);
+    }
+    if (t) {
+      for (const o of t.incoming) {
+        const b = document.createElement('button');
+        b.className = 'pdx-trade-card hot';
+        b.innerHTML = '<b></b><span></span>';
+        b.querySelector('b').textContent = `${whoName(o.from)} wants your ${NAME(o.want_dex)}`;
+        b.querySelector('span').textContent = `For their ${NAME(o.give_dex)} · See offer ›`;
+        b.addEventListener('click', () => openOffer(o));
+        box.append(b);
+      }
+      for (const o of t.outgoing) {
+        const d = document.createElement('div');
+        d.className = 'pdx-trade-card';
+        d.innerHTML = '<b></b><span></span><button class="pdx-mini">Cancel</button>';
+        d.querySelector('b').textContent = o.kind === 'inperson' ? `Trade code open for your ${NAME(o.give_dex)}`
+          : `Waiting for ${whoName(o.to)}`;
+        d.querySelector('span').textContent = o.kind === 'inperson' ? 'Anyone who scans it can swap with you'
+          : `Your ${NAME(o.give_dex)} for their ${NAME(o.want_dex)}`;
+        d.querySelector('button').addEventListener('click', async () => {
+          await NakamaDB.cancelTrade(o.id).catch(() => {});
+          refreshTrades();
+        });
+        box.append(d);
+      }
+      const answer = t.answers.find(a => !answersShown.has(a.id));
+      if (answer && $('result-sheet').hidden && $('offer-sheet').hidden) showAnswer(answer);
+    }
+    show(box, box.children.length > 0);
+  }
+
+  function openOffer(o) {
+    const who = whoName(o.from);
+    $('offer-title').textContent = `${who} wants your ${NAME(o.want_dex)}`;
+    $('offer-who').textContent = `Trainer ${o.from.code}` + (o.from.friend ? ' · your friend' : ' · not in your friends yet');
+    paint($('offer-give'), o.want_dex); $('offer-give-name').textContent = NAME(o.want_dex);
+    paint($('offer-get'), o.give_dex); $('offer-get-name').textContent = NAME(o.give_dex);
+    $('offer-text').textContent = `${who} has already said yes. If you accept, the swap happens straight away.`;
+    $('offer-accept').disabled = false;
+    $('offer-accept').onclick = async () => {
+      $('offer-accept').disabled = true;
+      const r = await NakamaDB.answerTrade(o.id, true).catch(() => ({ status: 'error' }));
+      show($('offer-sheet'), false);
+      await load();
+      if (r.status === 'accepted') {
+        return result({ pic: r.got_dex, eyebrow: 'Trade complete', title: `${NAME(r.got_dex)} joined your Pokédex!`,
+          text: `${who} got your ${NAME(r.gave_dex)}.`, friend: r.from });
+      }
+      const why = { gone: `${who} doesn't have their ${NAME(o.give_dex)} any more, so this offer is closed.`,
+        you_dont_have: `You don't have a ${NAME(o.want_dex)} any more.`,
+        cancelled: `${who} cancelled this offer.` }[r.status] || "Couldn't finish the trade. Check your internet and try again.";
+      result({ pic: o.give_dex, eyebrow: 'Trade', title: 'No trade this time', text: why });
+    };
+    $('offer-decline').onclick = async () => {
+      await NakamaDB.answerTrade(o.id, false).catch(() => {});
+      show($('offer-sheet'), false);
+      refreshTrades();
+    };
+    show($('offer-sheet'));
+  }
+
+  // The answer to an offer I sent.
+  function showAnswer(a) {
+    answersShown.add(a.id);
+    NakamaDB.seenTrade(a.id).catch(() => {});
+    const who = whoName(a.to);
+    if (a.status === 'accepted') {
+      load();
+      return result({ pic: a.got_dex, eyebrow: `${who} accepted!`, title: `${NAME(a.got_dex)} joined your Pokédex!`,
+        text: `Take good care of it. ${who} got your ${NAME(a.give_dex)}.`, friend: a.to });
+    }
+    const still = (now.mine || []).filter(c => c.dex === a.give_dex).pop();
+    result({ pic: a.give_dex, eyebrow: 'Trade', title: `${who} said no this time`,
+      text: `They'd like to keep their ${NAME(a.want_dex)} for now. Your ${NAME(a.give_dex)} is still safe in your Pokédex.`,
+      again: still && a.to ? `trade.html?give=${still.id}&with=${encodeURIComponent(a.to.code)}` : null });
+  }
+
+  function result({ pic, eyebrow, title, text, friend, again }) {
+    paint($('result-pic'), pic);
+    $('result-eyebrow').textContent = eyebrow;
+    $('result-title').textContent = title;
+    $('result-text').textContent = text;
+    const ask = !!friend && !friend.friend;
+    show($('result-friend'), ask);
+    if (ask) {
+      const who = whoName(friend);
+      $('result-friend-text').textContent = `Add ${who} as a friend? Friends show up first next time you trade.`;
+      $('result-add').disabled = false;
+      $('result-add').textContent = 'Add friend';
+      $('result-add').onclick = async () => {
+        $('result-add').disabled = true;
+        const r = await NakamaDB.addFriend(friend.code).catch(() => null);
+        $('result-add').textContent = r && r.status === 'ok' ? 'Friend added ✓' : 'Try again';
+        $('result-add').disabled = !!(r && r.status === 'ok');
+      };
+    }
+    show($('result-again'), !!again);
+    if (again) $('result-again').href = again;
+    show($('result-sheet'));
+  }
+  $('result-ok').addEventListener('click', () => { show($('result-sheet'), false); refreshTrades(); });
+
+  // keep an eye out for new offers while the page is open
+  setInterval(() => { if (document.visibilityState === 'visible' && now.saved) refreshTrades(); }, 20000);
   $('name-form').addEventListener('submit', async e => {
     e.preventDefault();
     const name = $('name-input').value.trim().slice(0, 12);
@@ -360,6 +558,7 @@
     if (params.has('save')) history.replaceState(null, '', location.pathname);
     await load();
     if (params.has('save') && !now.saved && now.found > 0) openSave();
+    refreshTrades();
   })().catch(() => {
     $('trainer').textContent = 'Can\'t reach the Pokédex';
     $('empty').querySelector('h2').textContent = 'Can\'t load your Pokédex';
