@@ -329,11 +329,9 @@ h3 { margin: 0 0 6px; font-size: 19px; line-height: 1.3; }
 .trade-phones .phone { width: min(33%, 210px); }
 
 /* 07 reel */
-.reel { display: grid; gap: 28px; align-items: center; justify-items: center; }
-.reel-copy { text-align: center; }
-.reel-copy .sub { margin: 0 auto 18px; }
-.reel-phone { width: min(70vw, 300px); }
-.reel-phone video { display: block; width: 100%; height: auto; border-radius: 23px; background: #000; }
+.reel-wide { overflow: hidden; background: #000; border: 2px solid var(--line); border-radius: 14px; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 60px rgba(215, 45, 107, 0.12); }
+.reel-wide video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: #000; }
+.reel-more { margin: 20px 0 0; display: flex; justify-content: center; }
 
 /* 08 how it works */
 .cards { display: grid; gap: 12px; }
@@ -403,10 +401,6 @@ h3 { margin: 0 0 6px; font-size: 19px; line-height: 1.3; }
   .rares { grid-template-columns: 1fr 1fr; }
   .rare-list { grid-template-columns: repeat(6, minmax(0, 1fr)); }
   .trade { grid-template-columns: 1fr 1fr; }
-  .reel { grid-template-columns: 1fr 1fr; justify-items: start; }
-  .reel-copy { text-align: left; }
-  .reel-copy .sub { margin-left: 0; }
-  .reel-phone { justify-self: center; }
   .cards { grid-template-columns: repeat(3, 1fr); }
   .want-grid { grid-template-columns: 1fr 1.1fr; gap: 32px; }
   .pdx-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
