@@ -247,7 +247,7 @@
     wtp.classList.add('revealed');
     const rare = isRare(wtpId);
     wtpActor = live(wtpId, wtpLive, rare);
-    type(wtpAnswer, 'It\'s ' + S[wtpId].name + '!' + (rare ? ' ★ One of the 6 rares.' : ''));
+    type(wtpAnswer, 'It\'s ' + S[wtpId].name + '!' + (rare ? ' ★ A rare one!' : ''));
     wtpBtn.textContent = 'Another one ▸';
   });
   wtpNew();

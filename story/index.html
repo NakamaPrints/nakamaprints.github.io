@@ -15,7 +15,7 @@
   <meta property="og:site_name" content="Nakama Prints" />
   <meta property="og:url" content="https://nakamaprints.github.io/story/" />
   <meta property="og:title" content="Who's inside your Pokeball? No app. Just scan." />
-  <meta property="og:description" content="I 3D-print Pokeballs for friends and family. Scan the card, point at the coin inside, and an 8-bit Pokémon pops out in AR. Collect all 20 and trade the rest." />
+  <meta property="og:description" content="I 3D-print Pokeballs for friends and family. Scan the card, point at the coin inside, and an 8-bit Pokémon pops out in AR. Collect them all, hunt the rare ones and trade with friends." />
   <meta property="og:image" content="https://nakamaprints.github.io/story/og.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -88,12 +88,25 @@
 
     <p class="gift-note"><b>Not for sale.</b> These Pokémon balls are gifts for my nakama (that's "friends" in Japanese). Try the demo, and if you'd want something like it, <a href="#want">tell me</a>.</p>
 
-    <!-- ============ 1. THE BALL ============ -->
+    <!-- ============ 1. REEL ============ -->
+    <section class="sec reel" id="reel">
+      <div class="reel-copy">
+        <p class="eyebrow">01 · The reel</p>
+        <h2>See it for real</h2>
+        <p class="sub">23 seconds, printer to Pokédex. Sound on for the Pokédex voice.</p>
+        <a class="btn btn-ghost" href="https://www.instagram.com/nakamaprints_in/" rel="noopener">More on Instagram</a>
+      </div>
+      <div class="phone reel-phone">
+        <video src="assets/reel.mp4" poster="assets/reel-poster.webp" controls playsinline preload="none" width="540" height="960" aria-label="Nakama Prints reel: the printed Pokeball, the card, the AR pop-out and the Pokédex"></video>
+      </div>
+    </section>
+
+    <!-- ============ 2. THE BALL ============ -->
     <section class="sec" id="story">
       <header class="sec-head">
-        <p class="eyebrow">01 · The ball</p>
+        <p class="eyebrow">02 · The ball</p>
         <h2>It starts on the printer</h2>
-        <p class="sub">Every ball is printed on my Bambu, one colour at a time, then put together by hand. And yes, it really opens.</p>
+        <p class="sub">Printed at home and put together by hand. And yes, it really opens.</p>
       </header>
 
       <div class="kit">
@@ -110,23 +123,23 @@
       <ol class="kit-list">
         <li>
           <div class="kit-ico"><img src="assets/ball-square.jpg" alt="" width="600" height="600" loading="lazy" /></div>
-          <div><h3>The Pokeball</h3><p>Red and white, printed in parts on a single-colour printer and assembled. It clicks open and shut.</p></div>
+          <div><h3>The Pokeball</h3><p>It clicks open and shut.</p></div>
         </li>
         <li>
           <div class="kit-ico card-ico"><img src="assets/card-front.webp" alt="" width="480" height="640" loading="lazy" /></div>
-          <div><h3>The "Who's that Pokémon?" card</h3><p>A 60 × 80 mm QR card that comes with the ball. Each card is one of a kind.</p></div>
+          <div><h3>The "Who's that Pokémon?" card</h3><p>Comes with the ball. Every card is one of a kind.</p></div>
         </li>
         <li>
           <div class="kit-ico"><img src="assets/np-coin.webp" alt="" width="400" height="400" loading="lazy" /></div>
-          <div><h3>The NP coin</h3><p>A 40 mm coin rattling around inside the ball. This is where your Pokémon will stand.</p></div>
+          <div><h3>The NP coin</h3><p>Hiding inside the ball. This is where your Pokémon will stand.</p></div>
         </li>
       </ol>
     </section>
 
-    <!-- ============ 2. HOW A BALL OPENS ============ -->
+    <!-- ============ 3. HOW A BALL OPENS ============ -->
     <section class="sec" id="how">
       <header class="sec-head">
-        <p class="eyebrow">02 · The magic bit</p>
+        <p class="eyebrow">03 · The magic bit</p>
         <h2>Scan. Release. <span class="pink">Pop!</span></h2>
         <p class="sub">Four taps from a closed ball to a Pokémon in your Pokédex. These are real screens from the app.</p>
       </header>
@@ -194,7 +207,7 @@
           <div class="step-copy">
             <span class="num">4</span>
             <h3>Add it to your Pokédex</h3>
-            <p>One tap on <b>ADD TO MY POKÉDEX</b> and it's yours. No sign-up, no password. Want it safe on a new phone later? Save with Google whenever you like.</p>
+            <p>One tap on <b>ADD TO MY POKÉDEX</b> and it's yours. Then go find the next one.</p>
           </div>
           <div class="step-art phones">
             <div class="phone tilt-l"><img src="assets/screen-add.webp" alt="The Pokédex entry for Pikachu with an Add to my Pokédex button" width="520" height="1125" loading="lazy" /></div>
@@ -204,7 +217,7 @@
       </div>
     </section>
 
-    <!-- ============ 3. WHO'S THAT POKEMON ============ -->
+    <!-- ============ WHO'S THAT POKEMON ============ -->
     <section class="wtp" id="guess" aria-labelledby="wtpTitle">
       <div class="wtp-inner">
         <h2 class="wtp-title" id="wtpTitle"><span class="w1">Who's</span> <span class="q">?</span> <span class="w1">that</span><span class="w2">Pokémon</span></h2>
@@ -212,17 +225,17 @@
           <canvas class="px wtp-sil" id="wtpSil" width="72" height="72" aria-hidden="true"></canvas>
           <div class="wtp-live" id="wtpLive"></div>
         </div>
-        <p class="wtp-answer" id="wtpAnswer" aria-live="polite">Every ball hides one of 20. Got a guess?</p>
+        <p class="wtp-answer" id="wtpAnswer" aria-live="polite">Every ball hides a different one. Got a guess?</p>
         <button class="btn btn-yellow" id="wtpBtn" type="button">Reveal!</button>
       </div>
     </section>
 
-    <!-- ============ 4. COLLECT 20 ============ -->
+    <!-- ============ 4. COLLECT ============ -->
     <section class="sec" id="collect">
       <header class="sec-head">
-        <p class="eyebrow">03 · My Pokédex</p>
+        <p class="eyebrow">04 · My Pokédex</p>
         <h2>Fill your Pokédex</h2>
-        <p class="sub">20 Gen 1 Pokémon to find: 14 regulars and 6 rares. The ones you haven't met yet wait as dark silhouettes. Tap one to see who's hiding.</p>
+        <p class="sub">Gen 1 Pokémon to find, with rare ones hiding among them. The ones you haven't met yet wait as dark silhouettes. Tap one to see who's hiding.</p>
       </header>
 
       <div class="pdx" id="pdx">
@@ -243,12 +256,12 @@
         </div>
         <div class="master" id="master" hidden>
           <div class="master-card">
-            <p class="master-kicker">★ 20 of 20 ★</p>
+            <p class="master-kicker">★ Complete ★</p>
             <p class="master-title">Gen 1 Master!</p>
-            <p class="master-sub">You found all 20, including all 6 rares. Your trainer card goes gold.</p>
+            <p class="master-sub">You found every one, rares included. Your trainer card goes gold.</p>
             <div class="tcard">
               <img src="../assets/np-logo.png" alt="" width="40" height="40" />
-              <div><b>Trainer NP-1410</b><span>Gen 1 · 20/20 · ★ 6/6</span></div>
+              <div><b>Trainer NP-1410</b><span>Gen 1 · Complete · ★ All rares</span></div>
             </div>
             <button class="btn btn-sm" id="masterClose" type="button">Nice!</button>
           </div>
@@ -260,9 +273,9 @@
     <!-- ============ 5. RARES ============ -->
     <section class="sec rares" id="rares">
       <div class="rares-copy">
-        <p class="eyebrow gold">04 · Rares</p>
+        <p class="eyebrow gold">05 · Rares</p>
         <h2>Some balls go <span class="goldtxt">gold</span></h2>
-        <p class="sub">Six rares are hiding in the set. When one comes out you get a gold flash, a <b class="goldtxt">★ RARE ★</b> stamp, a little fanfare, and twinkles that never quite stop.</p>
+        <p class="sub">Rare ones are hiding in the set. When one comes out you get a gold flash, a <b class="goldtxt">★ RARE ★</b> stamp, a little fanfare, and twinkles that never quite stop.</p>
         <ul class="rare-list" id="rareList"></ul>
       </div>
       <div class="phones rare-phones">
@@ -274,7 +287,7 @@
     <!-- ============ 6. TRADE ============ -->
     <section class="sec" id="trade">
       <header class="sec-head">
-        <p class="eyebrow">05 · Trading</p>
+        <p class="eyebrow">06 · Trading</p>
         <h2>Got two Squirtles? <span class="pink">Trade one.</span></h2>
         <p class="sub">Duplicates are perfect for trading. Every trainer gets a code like NP-1410.</p>
       </header>
@@ -307,40 +320,12 @@
       </div>
     </section>
 
-    <!-- ============ 7. REEL ============ -->
-    <section class="sec reel" id="reel">
-      <div class="reel-copy">
-        <p class="eyebrow">06 · The reel</p>
-        <h2>See it for real</h2>
-        <p class="sub">23 seconds, printer to Pokédex. Sound on for the Pokédex voice.</p>
-        <a class="btn btn-ghost" href="https://www.instagram.com/nakamaprints_in/" rel="noopener">More on Instagram</a>
-      </div>
-      <div class="phone reel-phone">
-        <video src="assets/reel.mp4" poster="assets/reel-poster.webp" controls playsinline preload="none" width="540" height="960" aria-label="Nakama Prints reel: the printed Pokeball, the card, the AR pop-out and the Pokédex"></video>
-      </div>
-    </section>
 
-    <!-- ============ 8. HOW IT'S BUILT ============ -->
-    <section class="sec" id="built">
-      <header class="sec-head">
-        <p class="eyebrow">07 · For makers and tinkerers</p>
-        <h2>How it works</h2>
-        <p class="sub">No game engine, no app store. Just a printer, some paper and a web page.</p>
-      </header>
-      <div class="cards">
-        <article class="tcell"><h3>Web AR, no app</h3><p>The page runs in your phone's browser with A-Frame and MindAR image tracking. The camera feed never leaves the phone.</p></article>
-        <article class="tcell"><h3>One coin, many cards</h3><p>Every ball has the same NP coin as its AR marker. The card's QR carries a unique code, so the card decides who pops out.</p></article>
-        <article class="tcell"><h3>Hand-cleaned 8-bit</h3><p>Each Pokémon is a pixel sprite animated on a tiny canvas: blink, bob, hop and its own move. Every Pokémon on this page runs on that same engine.</p></article>
-        <article class="tcell"><h3>A Pokédex in Supabase</h3><p>Your first add quietly makes a guest account. Database rules make sure each card has one owner. Save with Google any time.</p></article>
-        <article class="tcell"><h3>The real Pokédex voice</h3><p>Short clips of the anime Pokédex, with the entry typing out in sync like the show.</p></article>
-        <article class="tcell"><h3>Printed at home</h3><p>Balls printed in parts on a single-colour Bambu and assembled. Cards and coins printed and cut by hand.</p></article>
-      </div>
-    </section>
 
-    <!-- ============ 9. WANT ONE? (interest check) ============ -->
+    <!-- ============ 7. WANT ONE? (interest check) ============ -->
     <section class="sec want" id="want">
       <header class="sec-head">
-        <p class="eyebrow">08 · What's next</p>
+        <p class="eyebrow">07 · What's next</p>
         <h2>Want one of <span class="pink">your own?</span></h2>
         <p class="sub">The Pokémon version stays a gift for my friends. But the idea works for any collectible, so I'm thinking about making it real with my own original <b>Nakama creatures</b>. Would you want one?</p>
       </header>
@@ -382,7 +367,7 @@
       </div>
     </section>
 
-    <!-- ============ 10. OUTRO ============ -->
+    <!-- ============ 8. OUTRO ============ -->
     <section class="outro">
       <div class="outro-row" id="outroRow" aria-hidden="true"></div>
       <h2>Every ball, <span class="pink">a surprise.</span></h2>
