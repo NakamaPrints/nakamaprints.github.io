@@ -13,6 +13,12 @@
   const no = id => 'No.' + String(id).padStart(3, '0');
   const wait = ms => new Promise(r => setTimeout(r, ms));
 
+  // the opening fills the screen below the top bar, whatever height the bar ends up
+  const topBar = document.querySelector('.top');
+  const setTop = () => document.documentElement.style.setProperty('--toph', topBar.offsetHeight + 'px');
+  setTop();
+  addEventListener('resize', setTop);
+
   // ---------- static portraits (colour, or a flat silhouette)
   const protos = {};
   const proto = id => protos[id] || (protos[id] = new NakamaCreature(id));

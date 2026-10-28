@@ -414,7 +414,7 @@ h3 { margin: 0 0 6px; font-size: 19px; line-height: 1.3; }
 @media (min-width: 720px) {
   :root { --gutter: 28px; }
   /* the opening fills the first screen (below the top bar), content centred, so the next section starts below the fold */
-  .hero { grid-template-columns: 1.25fr 1fr; padding-top: 24px; padding-bottom: 24px; min-height: calc(100vh - 64px); min-height: calc(100svh - 64px); align-content: center; }
+  .hero { grid-template-columns: 1.25fr 1fr; padding-top: 24px; padding-bottom: 24px; min-height: calc(100vh - var(--toph, 64px)); min-height: calc(100svh - var(--toph, 64px)); align-content: center; }
   .hero + .sec { padding-top: 48px; }
   .hero h1 { font-size: min(40px, calc(3.8vw - 4px)); margin-bottom: 24px; }
   .hero .lede { max-width: none; }
