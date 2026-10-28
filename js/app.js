@@ -4,6 +4,8 @@
 //                  "Add to my Pokédex" gets it
 //   ?k=CODE&test   test mode for the maker: the same flow, but Add adds nothing
 //   ?c=4           old-style link: shows the Pokémon and its entry, adds nothing
+//   ?try           the demo from try/ (coin shown on a computer screen): a random Pokémon pops out and
+//                  its entry plays, nothing gets added, then "Want one of your own?". &demo = no camera.
 //   (no link)      opens My Pokédex if this phone has one, otherwise asks to scan a card
 (function () {
   // ---- tuning (sizes are in marker widths: 1 = the coin's width) ----
@@ -42,9 +44,21 @@
       }
       return main(String(card.dex), { code, status: card.status, trainer: card.trainer, mode });
     }
+    if (params.has('try')) return main(randomPokemon(), { mode: 'try' });
     if (params.get('c')) return main(String(parseInt(params.get('c'), 10)), { mode: 'legacy' });
     if (NakamaDB.pending.get() || await NakamaDB.hasPokedex().catch(() => false)) { location.replace('pokedex.html'); return; }
     noCard();
+  }
+
+  // Any Pokémon with a sprite and a Pokédex entry; not the one this phone saw last time.
+  function randomPokemon() {
+    const ids = Object.keys(window.NAKAMA_SPRITES).filter(k => (window.NAKAMA_POKEDEX || {})[k]);
+    let last = null;
+    try { last = sessionStorage.getItem('np-try'); } catch (e) {}
+    const pool = ids.length > 1 ? ids.filter(k => k !== last) : ids;
+    const id = pool[Math.floor(Math.random() * pool.length)];
+    try { sessionStorage.setItem('np-try', id); } catch (e) {}
+    return id;
   }
 
   function noCard(title, text) {
@@ -70,6 +84,11 @@
     }, () => {});
 
     if (ctx.mode === 'test') show($('testbar'));
+    if (ctx.mode === 'try') {
+      const steps = $('screen-start').querySelectorAll('.steps span');
+      steps[0].innerHTML = 'Keep the demo page open on your <b>computer</b>';
+      steps[2].innerHTML = 'Point at the <b>NP coin</b> on that screen';
+    }
     if (ctx.mode === 'view') showTaken(); else show($('screen-start'));
 
     // ---------------------------------------------------------------- shared bits
@@ -268,6 +287,7 @@
         show($('btn-dex'), false);
         show($('btn-mydex'), false);
         show($('dex-actions'), false);
+        show($('dex-try'), false);
         show($('dex-replay'), false);
         // while the Pokémon is waiting to be added there's no ✕: add it, or go to My Pokédex
         show($('dex-close'), !(offerAdd && !added));
@@ -320,6 +340,10 @@
         $('dex-status').textContent = '';
         show($('dex-replay'));
         if (offerAdd && !added) show($('dex-actions'));
+        if (ctx.mode === 'try') {
+          $('dex-try-text').textContent = `Like ${data.name}? This was the demo, so nothing gets added.`;
+          show($('dex-try'));
+        }
       },
       // A Pokémon without an entry yet can still be added.
       openBare() {

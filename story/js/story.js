@@ -3,7 +3,7 @@
 (function () {
   const S = window.NAKAMA_SPRITES, DEX = window.NAKAMA_POKEDEX, CFG = window.NAKAMA_CONFIG || {};
   const TEX = window.NAKAMA_TEX || 72;
-  const DEMO = 'https://nakamaprints.github.io/?c=4&demo';
+  const DEMO = 'https://nakamaprints.github.io/?try&demo';   // the card on this page: a phone that scans it gets the no-camera demo
   const RARES = [6, 94, 144, 145, 146, 150];
   const ALL = Object.keys(S).map(Number).sort((a, b) => a - b);
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -44,9 +44,10 @@
   }, { rootMargin: '120px' });
 
   // `target`: a canvas to mirror into, or an element to put the creature's own canvas in
-  function live(id, target, rare) {
+  function live(id, target, rare, onEvent) {
     const c = new NakamaCreature(id);
     c.rare = !!rare;
+    if (onEvent) c.onEvent = onEvent;
     const a = { c, mirror: target.tagName === 'CANVAS' ? target : null, host: target };
     if (!a.mirror) { target.textContent = ''; target.appendChild(c.canvas); }
     seen.has(a.host) || (seen.set(a.host, true), io.observe(a.host));
@@ -102,10 +103,53 @@
     });
   }
 
+  // ---------- sound: off until the speaker button is tapped (browsers need a tap before audio anyway).
+  // Plays ../assets/sfx/release.mp3 when a ball opens and cry-<dex>.mp3 when the Pokémon lands, the
+  // same files the app uses. CRIES lists the Pokémon that have a cry file so missing ones aren't fetched.
+  const CRIES = new Set([]);
+  const snd = { on: false, ac: null, bufs: {} };
+  function sndCtx() {
+    if (!snd.ac) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      snd.ac = new AC();
+    }
+    if (snd.ac.state === 'suspended') snd.ac.resume();
+    return snd.ac;
+  }
+  function sndLoad(name) {
+    if (!(name in snd.bufs)) {
+      snd.bufs[name] = fetch('../assets/sfx/' + name + '.mp3')
+        .then(r => (r.ok ? r.arrayBuffer() : Promise.reject(new Error('missing'))))
+        .then(b => new Promise((res, rej) => sndCtx().decodeAudioData(b, res, rej)))
+        .catch(() => null);
+    }
+    return snd.bufs[name];
+  }
+  async function sndPlay(name, vol) {
+    if (!snd.on) return;
+    const ac = sndCtx(), buf = ac && await sndLoad(name);
+    if (!buf || !snd.on) return;
+    const src = ac.createBufferSource(), g = ac.createGain();
+    src.buffer = buf;
+    g.gain.value = vol || 0.8;
+    src.connect(g).connect(ac.destination);
+    src.start();
+  }
+  const cry = id => { if (CRIES.has(+id)) sndPlay('cry-' + id); };
+  const sndBtn = $('sndBtn');
+  sndBtn.addEventListener('click', () => {
+    snd.on = !snd.on;
+    sndBtn.classList.toggle('on', snd.on);
+    sndBtn.setAttribute('aria-pressed', String(snd.on));
+    sndBtn.setAttribute('aria-label', snd.on ? 'Sound: on. Tap to mute' : "Sound: off. Turn on to hear each Pokémon's cry");
+    if (snd.on) { sndCtx(); sndLoad('release'); CRIES.has(heroId) ? cry(heroId) : sndPlay('release', 0.6); }
+  });
+
   // ---------- hero: shake, open, pop
   const stage = $('stage'), pop = $('pop'), flash = $('flash'), heroText = $('heroText');
   const HERO = [25, 7, 4, 6, 133, 1, 143, 94, 39, 54, 150, 52, 16, 131, 145, 128, 123, 130, 146, 144];
-  let heroI = 0, heroRun = 0, heroActor = null, heroTimer = 0, heroVisible = true;
+  let heroI = 0, heroRun = 0, heroActor = null, heroTimer = 0, heroVisible = true, heroId = 0;
 
   async function openBall() {
     const run = ++heroRun;
@@ -130,7 +174,10 @@
     flash.classList.toggle('gold', rare);
     void flash.offsetWidth;
     flash.classList.add('on');
-    heroActor = live(id, pop, rare);
+    heroId = id;
+    sndPlay('release', 0.6);
+    if (CRIES.has(id)) sndLoad('cry-' + id);
+    heroActor = live(id, pop, rare, ev => { if (ev === 'cry') cry(id); });
     await wait(reduced ? 0 : 750);
     if (run !== heroRun) return;
     await type(heroText, rare ? '★ Whoa, a rare ' + title(S[id].name) + '! ★' : 'You found ' + title(S[id].name) + '!');
