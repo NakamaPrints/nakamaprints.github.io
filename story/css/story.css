@@ -81,6 +81,8 @@ a:hover { color: #ffb3cb; }
 .brand { display: flex; align-items: center; gap: 10px; color: var(--paper); text-decoration: none; font-weight: 700; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; }
 .brand:hover { color: var(--paper); }
 .brand img { width: 34px; height: auto; }
+.top .btn-sm { white-space: nowrap; }
+@media (max-width: 379px) { .brand span { display: none; } }
 
 /* ---------- hero */
 main { display: block; overflow-x: clip; }
@@ -91,6 +93,9 @@ main { display: block; overflow-x: clip; }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pink-light); box-shadow: 0 0 12px var(--pink-light); animation: blink 1.6s steps(2) infinite; }
 @keyframes blink { 50% { opacity: 0.25; } }
 h1 { margin: 0 0 18px; font: 400 clamp(26px, 7.4vw, 50px)/1.32 var(--pixel); text-wrap: balance; }
+/* the title is two fixed lines; the font scales so "your Pokeball?" (14 letters) always fits */
+.hero h1 { font-size: min(30px, calc((100vw - 32px) / 14.6)); line-height: 1.4; }
+.hero h1 .ln { display: block; white-space: nowrap; }
 .lede { margin: 0 0 10px; max-width: 34ch; font-size: clamp(17px, 4.4vw, 20px); color: var(--text); }
 .lede .hook { display: block; margin-bottom: 6px; font-size: 1.12em; line-height: 1.35; color: var(--paper); }
 .lede + .lede { margin-top: 0; }
@@ -397,7 +402,9 @@ h3 { margin: 0 0 6px; font-size: 19px; line-height: 1.3; }
 /* ---------- wider screens */
 @media (min-width: 720px) {
   :root { --gutter: 28px; }
-  .hero { grid-template-columns: 1.05fr 1fr; padding-top: 56px; padding-bottom: 40px; }
+  .hero { grid-template-columns: 1.25fr 1fr; padding-top: 56px; padding-bottom: 40px; }
+  .hero h1 { font-size: min(40px, calc(3.8vw - 4px)); margin-bottom: 24px; }
+  .hero .lede { max-width: none; }
   .kit { grid-template-columns: 1fr 1fr; }
   .kit img, .kit video { aspect-ratio: 4 / 3; }
   .kit-list { grid-template-columns: repeat(3, 1fr); }
