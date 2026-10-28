@@ -83,10 +83,9 @@ a:hover { color: #ffb3cb; }
 .brand img { width: 34px; height: auto; }
 
 /* ---------- hero */
-main { display: block; }
+main { display: block; overflow-x: clip; }
 .hero {
   max-width: var(--max); margin: 0 auto; padding: 28px var(--gutter) 24px; display: grid; gap: 28px; align-items: center;
-  background: radial-gradient(90% 60% at 70% 30%, rgba(215, 45, 107, 0.18), transparent 70%);
 }
 .kicker { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 14px; font-weight: 700; font-size: 13px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--pink-light); }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pink-light); box-shadow: 0 0 12px var(--pink-light); animation: blink 1.6s steps(2) infinite; }
@@ -97,7 +96,12 @@ h1 { margin: 0 0 18px; font: 400 clamp(26px, 7.4vw, 50px)/1.32 var(--pixel); tex
 .lede + .lede { margin-top: 0; }
 .tag { margin: 0 0 22px; font: 400 clamp(11px, 3.1vw, 13px) var(--pixel); color: var(--yellow); }
 
-.hero-stage { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.hero-stage { position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+/* pink glow centred on the ball, fading out on every side (no box edge on wide screens) */
+.hero-stage::before {
+  content: ''; position: absolute; left: 50%; top: 40%; width: min(180%, 900px); aspect-ratio: 1; transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(215, 45, 107, 0.22), rgba(215, 45, 107, 0.08) 55%, transparent); pointer-events: none;
+}
 .stage { position: relative; width: min(100%, 420px); aspect-ratio: 1 / 1; }
 .burst {
   position: absolute; inset: 6%; border-radius: 50%; opacity: 0.9;
