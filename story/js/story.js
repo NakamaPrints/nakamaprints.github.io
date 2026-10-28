@@ -106,10 +106,8 @@
   const stage = $('stage'), pop = $('pop'), flash = $('flash'), heroText = $('heroText');
   const HERO = [25, 7, 4, 6, 133, 1, 143, 94, 39, 54, 150, 52, 16, 131, 145, 128, 123, 130, 146, 144];
   let heroI = 0, heroRun = 0, heroActor = null, heroTimer = 0, heroVisible = true;
-  const releaseSfx = new Audio('../assets/sfx/release.mp3');
-  releaseSfx.volume = 0.5;
 
-  async function openBall(byUser) {
+  async function openBall() {
     const run = ++heroRun;
     clearTimeout(heroTimer);
     const id = HERO[heroI++ % HERO.length], rare = isRare(id);
@@ -119,7 +117,7 @@
     flash.classList.remove('on', 'gold');
     type(heroText, 'Who\'s inside?');
     if (!reduced) {
-      await wait(byUser ? 150 : 500);
+      await wait(500);
       if (run !== heroRun) return;
       void stage.offsetWidth;
       stage.classList.add('shake');
@@ -132,20 +130,18 @@
     flash.classList.toggle('gold', rare);
     void flash.offsetWidth;
     flash.classList.add('on');
-    if (byUser) { try { releaseSfx.currentTime = 0; releaseSfx.play().catch(() => {}); } catch (e) {} }
     heroActor = live(id, pop, rare);
     await wait(reduced ? 0 : 750);
     if (run !== heroRun) return;
     await type(heroText, rare ? '★ Whoa, a rare ' + title(S[id].name) + '! ★' : 'You found ' + title(S[id].name) + '!');
     if (run !== heroRun || reduced) return;
     heroTimer = setTimeout(function next() {
-      if (heroVisible && !document.hidden) openBall(false);
+      if (heroVisible && !document.hidden) openBall();
       else heroTimer = setTimeout(next, 1500);
     }, 4200);
   }
   new IntersectionObserver(es => { heroVisible = es[0].isIntersecting; }).observe(stage);
-  $('heroNext').addEventListener('click', () => openBall(true));
-  openBall(false);
+  openBall();
 
   // ---------- the card: flip, and a real QR to the demo on its front
   const flip = $('flipcard');
