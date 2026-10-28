@@ -429,7 +429,7 @@
   }
 
   // ---------- "Want one?" interest check (Supabase RPCs; the table itself is private)
-  const form = $('wantForm'), wErr = $('wantError'), wBtn = $('wantBtn'), wCount = $('wantCount');
+  const form = $('wantForm'), wErr = $('wantError'), wBtn = $('wantBtn');
   const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/, HANDLE = /^@?[a-z0-9._]{2,30}$/;
   function rpc(fn, body) {
     return fetch(CFG.supabaseUrl + '/rest/v1/rpc/' + fn, {
@@ -438,12 +438,6 @@
       body: JSON.stringify(body || {}),
     }).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
   }
-  function showCount(n) {
-    if (typeof n !== 'number') return;
-    wCount.textContent = n === 0 ? '★ Be the first to say yes!' : '★ ' + n + (n === 1 ? ' person wants' : ' people want') + ' one so far';
-    wCount.hidden = false;
-  }
-  if (CFG.supabaseUrl) onView($('want'), () => rpc('interest_count').then(showCount).catch(() => {}), { rootMargin: '400px' });
 
   function fail(msg, field) {
     wErr.textContent = msg;
