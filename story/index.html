@@ -30,7 +30,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Luckiest+Guy&family=Press+Start+2P&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/story.css?v=20261029" />
+  <link rel="stylesheet" href="css/story.css?v=20261029b" />
 </head>
 <body>
   <a class="skip" href="#story">Skip to the story</a>
@@ -64,10 +64,17 @@
           <div class="coin-wrap" aria-hidden="true"><img class="coin" src="assets/np-coin.webp" alt="" width="400" height="400" /></div>
           <div class="shadow" aria-hidden="true"></div>
           <svg class="ball" id="ball" viewBox="0 0 200 200" aria-hidden="true">
+            <defs>
+              <radialGradient id="inBot" cx="50%" cy="30%" r="75%"><stop offset="0" stop-color="#ff7a8a" /><stop offset="1" stop-color="#9a0b22" /></radialGradient>
+              <radialGradient id="inTop" cx="50%" cy="70%" r="75%"><stop offset="0" stop-color="#ff6a7c" /><stop offset="1" stop-color="#8a0a1e" /></radialGradient>
+            </defs>
             <g class="ball-bottom">
               <path d="M12 100a88 88 0 0 0 176 0z" fill="#f4f4f0" stroke="#111" stroke-width="7" />
               <path d="M30 128a80 80 0 0 0 140 0" fill="none" stroke="#d6d6cf" stroke-width="6" stroke-linecap="round" />
-              <ellipse class="ball-inside" cx="100" cy="100" rx="84" ry="16" fill="#1a1a1a" />
+              <g class="ball-inside">
+                <ellipse cx="100" cy="100" rx="86" ry="20" fill="url(#inBot)" stroke="#111" stroke-width="6" />
+                <ellipse cx="100" cy="100" rx="77" ry="14" fill="none" stroke="#f4f4f0" stroke-width="3" opacity=".75" />
+              </g>
             </g>
             <g class="ball-lid">
               <path d="M12 100a88 88 0 0 1 176 0z" fill="#d8102e" stroke="#111" stroke-width="7" stroke-linejoin="round" />
@@ -76,6 +83,15 @@
               <circle cx="100" cy="100" r="25" fill="#111" />
               <circle cx="100" cy="100" r="15" fill="#f4f4f0" />
               <circle cx="100" cy="100" r="8" fill="none" stroke="#cfcfc8" stroke-width="3" />
+            </g>
+            <!-- open: the top half hinged at the back, lifted and tipped back so its inside faces you -->
+            <g class="ball-lid-open">
+              <path d="M14 46 A86 54 0 0 1 186 46 A86 24 0 0 1 14 46z" fill="#d8102e" stroke="#111" stroke-width="7" stroke-linejoin="round" />
+              <path d="M42 26a74 44 0 0 1 36-16" fill="none" stroke="#ff6a7c" stroke-width="8" stroke-linecap="round" />
+              <ellipse cx="100" cy="46" rx="86" ry="24" fill="url(#inTop)" stroke="#111" stroke-width="6" />
+              <ellipse cx="100" cy="46" rx="77" ry="17" fill="none" stroke="#f4f4f0" stroke-width="3" opacity=".75" />
+              <circle cx="100" cy="70" r="12" fill="#111" />
+              <circle cx="100" cy="70" r="7" fill="#f4f4f0" />
             </g>
           </svg>
           <div class="pop" id="pop"></div>

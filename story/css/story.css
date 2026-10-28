@@ -129,9 +129,14 @@ h1 { margin: 0 0 18px; font: 400 clamp(26px, 7.4vw, 50px)/1.32 var(--pixel); tex
 .coin { display: block; width: 100%; height: auto; border-radius: 50%; }
 .shadow { position: absolute; left: 50%; top: 80%; width: 56%; height: 9%; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(closest-side, rgba(0, 0, 0, 0.6), transparent); }
 .ball { position: absolute; left: 50%; top: 52%; width: 62%; height: auto; transform: translate(-50%, -50%); overflow: visible; }
-.ball-lid { transform-box: view-box; transform-origin: 14px 100px; transition: transform 380ms cubic-bezier(.3, 1.4, .5, 1); }
-.ball-inside { opacity: 0; transition: opacity 200ms; }
-.stage.open .ball-lid { transform: rotate(-38deg); }
+/* opening: hinged at the back like the anime ball. The closed top half squashes away and the open
+   top half (inside facing you) springs up from the middle; the bottom half shows its open rim. */
+.ball-lid, .ball-lid-open { transform-box: view-box; transform-origin: 100px 100px; }
+.ball-lid { transition: transform 220ms ease-in, opacity 160ms ease-in; }
+.ball-lid-open { opacity: 0; transform: translateY(46px) scaleY(0.25); transition: transform 460ms cubic-bezier(.3, 1.5, .5, 1), opacity 120ms; }
+.ball-inside { opacity: 0; transition: opacity 160ms; }
+.stage.open .ball-lid { opacity: 0; transform: translateY(-10px) scaleY(0.4); }
+.stage.open .ball-lid-open { opacity: 1; transform: none; }
 .stage.open .ball-inside { opacity: 1; }
 .stage.open .coin-wrap { opacity: 1; }
 .stage.shake .ball { animation: shake 0.42s ease-in-out 2; }
