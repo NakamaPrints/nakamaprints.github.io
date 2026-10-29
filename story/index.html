@@ -29,39 +29,51 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Luckiest+Guy&family=Press+Start+2P&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/story.css?v=20261029e" />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/lab.css?v=20261029" />
 </head>
 <body>
-  <a class="skip" href="#story">Skip to the story</a>
+  <a class="skip" href="#tape">Skip to the story</a>
 
   <header class="top">
-    <a class="brand" href="#top" aria-label="Nakama Prints, back to top">
-      <img src="../assets/np-logo.png" alt="" width="34" height="34" />
-      <span>Nakama Prints</span>
-    </a>
-    <div class="top-actions">
-      <button class="snd" id="sndBtn" type="button" aria-pressed="false" aria-label="Sound: off. Turn on to hear each Pokémon's cry">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M4 9h4l5-4v14l-5-4H4z"/><path class="w" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M16 9.5a3.5 3.5 0 0 1 0 5M18.5 7a7 7 0 0 1 0 10"/><path class="x" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="m16 10 4 4m0-4-4 4"/></svg>
-      </button>
-      <a class="btn btn-sm" href="../try/" target="_blank" rel="noopener">Try the demo</a>
+    <div class="wrap top-in">
+      <a class="brand" href="#top" aria-label="Nakama Prints, back to top">
+        <img src="../assets/np-logo.png" alt="" width="30" height="30" />
+        <span>Nakama Prints</span>
+      </a>
+      <nav class="nav" aria-label="Sections">
+        <a href="#how">How it works</a>
+        <a href="#dex">Pokédex</a>
+        <a href="#trade">Trading</a>
+        <a href="#want">Get one</a>
+      </nav>
+      <div class="top-actions">
+        <button class="snd" id="sndBtn" type="button" aria-pressed="false" aria-label="Sound: off. Turn on to hear each Pokémon's cry">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M4 9h4l5-4v14l-5-4H4z"/><path class="w" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M16 9.5a3.5 3.5 0 0 1 0 5M18.5 7a7 7 0 0 1 0 10"/><path class="x" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="m16 10 4 4m0-4-4 4"/></svg>
+        </button>
+        <a class="btn btn-sm" href="../try/" target="_blank" rel="noopener">▸ Try the demo</a>
+      </div>
     </div>
   </header>
 
   <main id="top">
     <!-- ============ HERO ============ -->
-    <section class="hero">
+    <section class="hero wrap">
       <div class="hero-copy">
-        <h1><span class="ln">Who's inside</span> <span class="ln">your <span class="pink">Pokeball?</span></span></h1>
-        <p class="lede"><b class="hook">The Pokeball you always wanted as a kid.</b> 3D-printed with a Pokémon hiding inside. Scan the card, open the ball, point the camera at the coin and watch it pop out right there in the Pokeball.</p>
-        <p class="lede">Gotta catch 'em all!</p>
-        <p class="tag">No app. Just scan &amp; have fun.</p>
+        <p class="eyebrow y">Player 1 · Ready?</p>
+        <h1><span class="ln">Who's inside</span> <span class="ln">your <span class="pink">Pokéball?</span></span></h1>
+        <p class="lede">The one you begged for in the 90s. This time it actually opens, and there's a Pokémon inside.</p>
+        <p class="sub">Scan the card, point your phone at the coin, and watch it pop out right there in the ball.</p>
+        <div class="ctas">
+          <a class="btn" href="../try/" target="_blank" rel="noopener">▸ Press start</a>
+          <a class="btn btn-ghost" href="#tape">Watch the tape</a>
+        </div>
+        <p class="tag">No app. No cartridge to blow on. Just your phone.</p>
       </div>
 
-      <div class="hero-stage" aria-label="Animation: a Pokeball shakes, opens and an 8-bit Pokémon pops out onto the NP coin">
+      <div class="hero-stage" aria-label="Animation: a Pokéball shakes, opens and an 8-bit Pokémon pops out">
         <div class="stage" id="stage">
           <div class="burst" aria-hidden="true"></div>
-          <div class="coin-wrap" aria-hidden="true"><img class="coin" src="assets/np-coin.webp" alt="" width="400" height="400" /></div>
           <div class="shadow" aria-hidden="true"></div>
           <svg class="ball" id="ball" viewBox="0 0 200 200" aria-hidden="true">
             <defs>
@@ -84,7 +96,6 @@
               <circle cx="100" cy="100" r="15" fill="#f4f4f0" />
               <circle cx="100" cy="100" r="8" fill="none" stroke="#cfcfc8" stroke-width="3" />
             </g>
-            <!-- open: the top half hinged at the back, lifted and tipped back so its inside faces you -->
             <g class="ball-lid-open">
               <path d="M12 44 A88 88 0 0 1 188 44 A88 20 0 0 1 12 44z" fill="#d8102e" stroke="#111" stroke-width="7" stroke-linejoin="round" />
               <path d="M44 -12a70 70 0 0 1 38-26" fill="none" stroke="#ff6a7c" stroke-width="9" stroke-linecap="round" />
@@ -99,290 +110,302 @@
           <div class="flash" id="flash" aria-hidden="true"></div>
           <div class="stamp" id="stamp" aria-hidden="true">★ RARE ★</div>
         </div>
-        <div class="gbox" aria-live="polite"><span id="heroText">Who's inside?</span></div>
+        <div class="gbox" aria-live="polite"><span id="heroText">A wild Pokémon is hiding inside!</span><i class="caret" aria-hidden="true"></i></div>
       </div>
     </section>
 
-    <!-- ============ 1. REEL ============ -->
-    <section class="sec reel" id="reel">
-      <header class="sec-head reel-copy">
-        <p class="eyebrow">01 · The reel</p>
-        <h2>See it for real</h2>
-        <p class="sub">From the printer to your Pokédex. Sound on for the Pokédex voice.</p>
-      </header>
-      <div class="reel-wide">
-        <video src="assets/reel-wide.mp4" poster="assets/reel-wide-poster.webp" controls playsinline preload="none" width="1920" height="1080" aria-label="Nakama Prints reel: the printed Pokeball, the card, the AR pop-out, the Pokédex, collecting and trading with friends"></video>
+    <!-- ============ 01 THE TAPE ============ -->
+    <section class="sec wrap" id="tape">
+      <div class="head-row">
+        <header class="sec-head">
+          <p class="eyebrow">01 · The tape</p>
+          <h2>Be kind. Rewind.</h2>
+          <p class="sub">From closed ball to Pokédex entry in one take.</p>
+        </header>
+        <a class="more" href="https://www.instagram.com/nakamaprints_in/" target="_blank" rel="noopener">More clips on Instagram ▶</a>
       </div>
-      <p class="reel-more"><a class="btn btn-ghost" href="https://www.instagram.com/nakamaprints_in/" target="_blank" rel="noopener">More on Instagram</a></p>
+      <div class="vhs" id="vhs">
+        <video id="tapeVideo" src="assets/reel-wide.mp4" poster="assets/reel-wide-poster.webp" playsinline preload="metadata" width="1920" height="1080" aria-label="Nakama Prints reel: the printed Pokéball, the card, the AR pop-out, the Pokédex, collecting and trading"></video>
+        <button class="vhs-hit" id="vhsBtn" type="button" aria-label="Play the tape"></button>
+        <span class="vhs-osd tl" id="vhsState">PLAY ▶</span>
+        <span class="vhs-osd tr">SP</span>
+        <span class="vhs-osd bl" id="vhsTime">0:00:00</span>
+      </div>
     </section>
 
-    <!-- ============ 2. THE BALL ============ -->
-    <section class="sec" id="story">
+    <!-- ============ 02 BAG ============ -->
+    <section class="sec wrap" id="bag">
+      <div class="split">
+        <div>
+          <header class="sec-head">
+            <p class="eyebrow">02 · Bag</p>
+            <h2>Check your bag</h2>
+            <p class="sub">Printed at home and put together by hand. Three items, one surprise.</p>
+          </header>
+          <div class="flatlay" id="flatlay" aria-label="The Pokéball, the Who's that Pokémon card and the NP coin">
+            <img class="fl-ball" data-item="ball" src="assets/ball-square.jpg" alt="The 3D-printed Pokéball" width="600" height="600" loading="lazy" />
+            <div class="fl-card" data-item="card"><img src="assets/card-front.webp" alt="The Who's that Pokémon card" width="480" height="640" loading="lazy" /><span class="qr" id="qr" aria-hidden="true"></span></div>
+            <img class="fl-coin" data-item="coin" src="assets/np-coin.webp" alt="The NP coin" width="400" height="400" loading="lazy" />
+          </div>
+        </div>
+        <div class="items cream-box" role="list" aria-label="Items">
+          <p class="box-title">Items</p>
+          <button class="item on" type="button" data-item="ball" role="listitem">
+            <span class="cur" aria-hidden="true">▸</span>
+            <span class="it-name">Pokéball</span><span class="qty">×1</span>
+            <span class="it-text">Magnets keep it snapped shut until you pop it open.</span>
+          </button>
+          <button class="item" type="button" data-item="card" role="listitem">
+            <span class="cur" aria-hidden="true">▸</span>
+            <span class="it-name">Mystery card</span><span class="qty">×1</span>
+            <span class="it-text">Your "Who's that Pokémon?" card. Its QR code is linked to whoever's waiting in your ball.</span>
+          </button>
+          <button class="item" type="button" data-item="coin" role="listitem">
+            <span class="cur" aria-hidden="true">▸</span>
+            <span class="it-name">NP coin</span><span class="qty">×1</span>
+            <span class="it-text">Sits inside the ball. It's the spot your Pokémon appears on.</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 03 HOW IT WORKS ============ -->
+    <section class="sec wrap" id="how">
       <header class="sec-head">
-        <p class="eyebrow">02 · The ball</p>
-        <h2>It starts on the printer</h2>
-        <p class="sub">Printed at home and put together by hand, and yes, it actually opens and closes with the help of magnets.</p>
-      </header>
-
-      <div class="kit">
-        <figure class="kit-photo">
-          <img src="assets/ball-on-printer.webp" alt="A red and white 3D-printed Pokeball sitting on the bed of a Bambu Lab printer" width="720" height="780" loading="lazy" />
-          <figcaption>Fresh off the print bed</figcaption>
-        </figure>
-        <figure class="kit-video">
-          <video id="openClip" src="assets/ball-open.mp4" poster="assets/ball-open-poster.webp" muted loop playsinline preload="metadata" width="576" height="720" aria-label="Short clip: the printed Pokeball on the printer, then a hand popping it open"></video>
-          <figcaption>Pop! Every one hides a secret.</figcaption>
-        </figure>
-      </div>
-    </section>
-
-    <!-- ============ 3. HOW A BALL OPENS ============ -->
-    <section class="sec" id="how">
-      <header class="sec-head">
-        <p class="eyebrow">03 · The magic bit</p>
+        <p class="eyebrow">03 · How it works</p>
         <h2>Scan. Release. <span class="pink">Pop!</span></h2>
-        <p class="sub">Four taps from a closed ball to a Pokémon in your Pokédex. These are real screens from the app.</p>
+        <p class="sub">Four steps, no instruction booklet. Screens below are from the real app.</p>
       </header>
-
-      <div class="steps">
-        <article class="step">
-          <div class="step-copy">
-            <span class="num">1</span>
-            <h3>Open it up, scan the card</h3>
-            <p>Pop the ball open. The NP coin is waiting inside. Scan the card's QR with your normal phone camera. Nothing to install, it opens in your browser.</p>
-          </div>
-          <div class="step-art">
-            <button class="flipcard" id="flipcard" type="button" aria-label="Flip the card">
-              <span class="flip-inner">
-                <span class="face front">
-                  <img src="assets/card-front.webp" alt="Front of the Who's that Pokémon card with a QR code" width="480" height="640" loading="lazy" />
-                  <span class="qr" id="qr" aria-hidden="true"></span>
-                </span>
-                <span class="face back"><img src="assets/card-back.webp" alt="Back of the card: How to find out, four steps" width="480" height="640" loading="lazy" /></span>
-              </span>
-            </button>
-            <p class="art-note">Tap the card to flip it. <span class="desk-only">On a computer? Scan this one with your phone to try the demo.</span></p>
-          </div>
-        </article>
-
-        <article class="step">
-          <div class="step-copy">
-            <span class="num">2</span>
-            <h3>Tap RELEASE! and point at the coin</h3>
-            <p>A white flash, a burst of sparks, and out it hops, standing right on the coin with a little cry. Walk around it and it turns to follow you.</p>
-          </div>
-          <div class="step-art phones">
-            <div class="phone tilt-l"><img src="assets/screen-card-scanned-start.webp" alt="App start screen: Who's inside your Pokeball? with a RELEASE! button" width="520" height="1125" loading="lazy" /></div>
-            <div class="phone"><img src="assets/screen-pokemon-pops-out.webp" alt="Pikachu pops out, with the text PIKACHU came out of the Pokeball" width="520" height="1125" loading="lazy" /></div>
-          </div>
-        </article>
-
-        <article class="step">
-          <div class="step-copy">
-            <span class="num">3</span>
-            <h3>The Pokédex speaks</h3>
-            <p>After a few seconds the red Pokédex slides up and reads the entry out loud. In <em>that</em> voice, the one from the anime. Try it:</p>
-          </div>
-          <div class="step-art">
-            <div class="dex" id="dex">
-              <div class="dex-top"><span class="lens"></span><span class="led r"></span><span class="led y"></span><span class="led g"></span>
-                <button class="dex-play" id="dexPlay" type="button">▶ Hear it</button></div>
-              <div class="dex-card">
-                <canvas class="px dex-portrait" id="dexPortrait" width="72" height="72" aria-hidden="true"></canvas>
-                <div>
-                  <p class="dex-no" id="dexNo">No.004</p>
-                  <p class="dex-name" id="dexName">CHARMANDER</p>
-                  <p class="dex-species" id="dexSpecies">Lizard Pokémon</p>
-                  <p class="dex-types" id="dexTypes"></p>
-                  <p class="dex-hw" id="dexHW"></p>
-                </div>
-              </div>
-              <p class="dex-text" id="dexText" aria-live="polite">Tap ▶ Hear it (sound on).</p>
-              <div class="dex-pick" role="group" aria-label="Pick a Pokémon" id="dexPick"></div>
-            </div>
-          </div>
-        </article>
-
-        <article class="step">
-          <div class="step-copy">
-            <span class="num">4</span>
-            <h3>Add it to your Pokédex</h3>
-            <p>One tap on <b>ADD TO MY POKÉDEX</b> and it's yours. Then go find the next one.</p>
-          </div>
-          <div class="step-art phones">
-            <div class="phone tilt-l"><img src="assets/screen-add.webp" alt="The Pokédex entry for Pikachu with an Add to my Pokédex button" width="520" height="1125" loading="lazy" /></div>
-            <div class="phone"><img src="assets/screen-added.webp" alt="ADDED! 1 of 20, Pikachu was added to your Pokédex" width="520" height="1125" loading="lazy" /></div>
-          </div>
-        </article>
-      </div>
+      <ol class="stages">
+        <li>
+          <div class="shot"><img src="assets/screen-card-scanned-start.webp" alt="App start screen after scanning the card, with a RELEASE! button" width="520" height="1125" loading="lazy" /></div>
+          <p class="stage-no">Stage 1/4</p>
+          <h3>Open the ball and scan the card</h3>
+          <p>Use your normal camera. The game opens in your browser.</p>
+        </li>
+        <li>
+          <div class="shot"><img src="assets/screen-pokemon-pops-out.webp" alt="Pikachu pops out: PIKACHU came out of the Pokeball!" width="520" height="1125" loading="lazy" /></div>
+          <p class="stage-no">Stage 2/4</p>
+          <h3>Tap RELEASE! and aim at the coin</h3>
+          <p>A white flash, a burst of sparks, and it's standing right on the coin.</p>
+        </li>
+        <li>
+          <div class="shot"><img src="assets/screen-add.webp" alt="The red Pokédex entry for Pikachu" width="520" height="1125" loading="lazy" /></div>
+          <p class="stage-no">Stage 3/4</p>
+          <h3>The Pokédex opens</h3>
+          <p>The red Pokédex slides up with its name, type and entry. Just like you remember.</p>
+        </li>
+        <li>
+          <div class="shot"><img src="assets/screen-added.webp" alt="ADDED! Pikachu was added to your Pokédex" width="520" height="1125" loading="lazy" /></div>
+          <p class="stage-no">Stage 4/4</p>
+          <h3>Gotcha!</h3>
+          <p>Tap Add to my Pokédex and it's yours. Then go find the next one.</p>
+        </li>
+      </ol>
     </section>
 
     <!-- ============ WHO'S THAT POKEMON ============ -->
-    <section class="wtp" id="guess" aria-labelledby="wtpTitle">
-      <div class="wtp-inner">
-        <h2 class="wtp-title" id="wtpTitle"><span class="w1">Who's</span> <span class="q">?</span> <span class="w1">that</span><span class="w2">Pokémon</span></h2>
-        <div class="wtp-stage">
+    <section class="wtp" aria-labelledby="wtpTitle">
+      <div class="wrap wtp-in">
+        <div class="cream-box wtp-box">
           <canvas class="px wtp-sil" id="wtpSil" width="72" height="72" aria-hidden="true"></canvas>
-          <div class="wtp-live" id="wtpLive"></div>
+          <h2 id="wtpTitle">Who's that Pokémon?</h2>
+          <p>No ball yet? Every ball hides a different one. Open the demo and see who shows up.</p>
+          <a class="btn" href="../try/" target="_blank" rel="noopener">▸ Start the demo</a>
+          <p class="fine">On a laptop? You'll get a QR code to open it on your phone.</p>
         </div>
-        <p class="wtp-answer" id="wtpAnswer" aria-live="polite">Every ball hides a different one. Got a guess?</p>
-        <button class="btn btn-yellow" id="wtpBtn" type="button">Reveal!</button>
       </div>
     </section>
 
-    <!-- ============ 4. COLLECT ============ -->
-    <section class="sec" id="collect">
-      <header class="sec-head">
-        <p class="eyebrow">04 · My Pokédex</p>
-        <h2>Fill your Pokédex</h2>
-        <p class="sub">Gen 1 Pokémon to find, with rare ones hiding among them. The ones you haven't met yet wait as dark silhouettes. Tap one to see who's hiding.</p>
-      </header>
-
-      <div class="pdx" id="pdx">
-        <div class="pdx-head">
-          <span class="lens"></span><span class="led r"></span><span class="led y"></span><span class="led g"></span>
-          <b>My Pokédex</b>
-        </div>
-        <div class="pdx-bar">
-          <span>Trainer · NP-1410</span>
-          <span id="pdxCount">6/20</span>
-        </div>
-        <div class="meter"><i id="pdxMeter"></i></div>
-        <p class="pdx-rare" id="pdxRare">★ Rare found: 1 of 6</p>
-        <div class="pdx-grid" id="pdxGrid"></div>
-        <div class="pdx-foot">
-          <button class="link-btn" id="pdxFill" type="button">Reveal the rest ▸</button>
-          <button class="link-btn" id="pdxReset" type="button">Start over</button>
-        </div>
-        <div class="master" id="master" hidden>
-          <div class="master-card">
-            <p class="master-kicker">★ Complete ★</p>
-            <p class="master-title">Gen 1 Master!</p>
-            <p class="master-sub">You found every one, rares included. Your trainer card goes gold.</p>
-            <div class="tcard">
-              <img src="../assets/np-logo.png" alt="" width="40" height="40" />
-              <div><b>Trainer NP-1410</b><span>Gen 1 · Complete · ★ All rares</span></div>
+    <!-- ============ 04 POKEDEX ============ -->
+    <section class="sec wrap" id="dex">
+      <div class="split">
+        <header class="sec-head">
+          <p class="eyebrow">04 · Pokédex</p>
+          <h2>Finish the dex you never finished</h2>
+          <p class="sub">A whole Gen I lineup to find, with rare ones mixed in. The ones you haven't caught yet wait as dark silhouettes, so you always know who's missing.</p>
+          <p class="sub dim">Tap a silhouette on the screen to see who's hiding.</p>
+        </header>
+        <div class="dexphone-wrap">
+          <div class="dexphone">
+            <div class="mydex" id="mydex">
+              <header class="md-head" id="mdHead">
+                <div class="md-top">
+                  <span class="dex-lens" aria-hidden="true"></span>
+                  <span class="led r" aria-hidden="true"></span><span class="led y" aria-hidden="true"></span><span class="led g" aria-hidden="true"></span>
+                  <h3>My Pokédex</h3>
+                </div>
+                <div class="md-row"><span>Trainer Ash · NP-1410 <span class="md-saved">Saved</span></span><span class="md-count" id="mdCount">6/20</span></div>
+                <div class="md-bar"><div id="mdBar"></div></div>
+                <span class="md-rare" id="mdRare">★ Rare found: 1 of 6</span>
+              </header>
+              <div class="md-grid" id="mdGrid" aria-live="polite"></div>
+              <div class="md-done" id="mdDone" hidden>
+                <div class="md-done-card">
+                  <span class="md-medal" aria-hidden="true">★</span>
+                  <p class="md-gold">Gen 1 Master</p>
+                  <p class="md-done-title">Pokédex complete!</p>
+                  <p class="md-done-text">You found every one, rares included. Your trainer card now has a gold border.</p>
+                  <button class="btn md-gold-btn" id="mdDoneBtn" type="button">See my Pokédex</button>
+                </div>
+              </div>
             </div>
-            <button class="btn btn-sm" id="masterClose" type="button">Nice!</button>
+          </div>
+          <div class="md-foot">
+            <button class="link-btn" id="mdFill" type="button">Fill it up ▸</button>
+            <button class="link-btn" id="mdReset" type="button">Start over</button>
           </div>
         </div>
       </div>
-      <p class="fine">Every card is one of a kind. The first trainer to add it keeps it, so no two Pokédexes look the same.</p>
     </section>
 
-    <!-- ============ 5. RARES ============ -->
-    <section class="sec rares" id="rares">
-      <div class="rares-copy">
-        <p class="eyebrow gold">05 · Rares</p>
-        <h2>Some balls go <span class="goldtxt">gold</span></h2>
-        <p class="sub">Rare ones are hiding in the set. When one comes out you get a gold flash, a <b class="goldtxt">★ RARE ★</b> stamp, a little fanfare, and twinkles that never quite stop.</p>
-        <ul class="rare-list" id="rareList"></ul>
-      </div>
-      <div class="phones rare-phones">
-        <div class="phone gold tilt-l"><img src="assets/screen-rare-pops-out.webp" alt="A rare Charizard pops out with a gold RARE stamp: Whoa! A RARE CHARIZARD appeared!" width="520" height="1125" loading="lazy" /></div>
-        <div class="phone gold"><img src="assets/screen-gold-pokedex.webp" alt="A full Pokédex with a gold border, the rare Pokémon framed in gold" width="520" height="1125" loading="lazy" /></div>
-      </div>
-    </section>
-
-    <!-- ============ 6. TRADE ============ -->
-    <section class="sec" id="trade">
-      <header class="sec-head">
-        <p class="eyebrow">06 · Trading</p>
-        <h2>Got two Squirtles? <span class="pink">Trade one.</span></h2>
-        <p class="sub">Duplicates are perfect for trading. Every trainer gets a code like NP-1410.</p>
-      </header>
-
-      <div class="trade">
-        <div class="trade-mock" aria-label="Example trade: your Squirtle for Priya's Pikachu">
-          <div class="tm-side">
-            <p class="tm-who">You · <b>NP-1410</b></p>
-            <div class="tm-slot"><canvas class="px" id="tradeA" width="72" height="72" aria-hidden="true"></canvas><span>SQUIRTLE <em>×2</em></span></div>
-          </div>
-          <div class="tm-arrows" aria-hidden="true"><span>⇄</span></div>
-          <div class="tm-side">
-            <p class="tm-who">Priya · <b>NP-2207</b></p>
-            <div class="tm-slot"><canvas class="px" id="tradeB" width="72" height="72" aria-hidden="true"></canvas><span>PIKACHU</span></div>
-          </div>
-          <div class="tm-status"><span class="chip" id="tradeStatus">Offer sent…</span></div>
+    <!-- ============ 05 RARE ============ -->
+    <section class="band" id="rare">
+      <div class="wrap split rev">
+        <div class="gold-frame">
+          <div class="phone gold"><img src="assets/screen-rare-pops-out.webp" alt="A rare Charizard pops out with a gold RARE stamp" width="520" height="1125" loading="lazy" /></div>
+          <div class="phone gold"><img src="assets/screen-gold-pokedex.webp" alt="A full Pokédex with a gold border, the rare Pokémon framed in gold" width="520" height="1125" loading="lazy" /></div>
         </div>
+        <header class="sec-head">
+          <p class="eyebrow y">05 · Rare</p>
+          <h2>Some rare ones</h2>
+          <p class="sub">Remember ripping open a pack and finding a holo? Same feeling. A few rare Pokémon are hidden in the set. Pull one and you get a gold flash, a RARE stamp and a card that keeps shining in your Pokédex.</p>
+          <p class="tag">No way to tell from the outside.</p>
+        </header>
+      </div>
+    </section>
 
-        <ol class="trade-steps">
-          <li><b>Type in a friend's trainer code.</b> Their Pokédex opens up.</li>
-          <li><b>Pick one of theirs</b> and choose what you'll give for it.</li>
-          <li><b>Send the offer.</b> They accept or decline. Accept, and the swap happens straight away.</li>
-          <li class="irl"><b>Hanging out together?</b> Show your one-time trade QR and they scan it. Done.</li>
+    <!-- ============ 06 TRADE ============ -->
+    <section class="sec wrap" id="trade">
+      <div class="split">
+        <div>
+          <header class="sec-head">
+            <p class="eyebrow">06 · Trade</p>
+            <h2>Trade like it's <span class="pink">recess.</span></h2>
+            <p class="sub">Got two of the same? Swap one with a friend. No link cable needed. Every trainer gets a code like <span class="code">NP-1234</span></p>
+          </header>
+          <div class="trade-mock" aria-label="Example trade: your Squirtle for Priya's Pikachu">
+            <div class="tm-side">
+              <p class="tm-who">You · <b>NP-1410</b></p>
+              <div class="tm-slot"><canvas class="px" id="tradeA" width="72" height="72" aria-hidden="true"></canvas><span>SQUIRTLE <em>×2</em></span></div>
+            </div>
+            <div class="tm-arrows" aria-hidden="true"><span>⇄</span></div>
+            <div class="tm-side">
+              <p class="tm-who">Priya · <b>NP-2207</b></p>
+              <div class="tm-slot"><canvas class="px" id="tradeB" width="72" height="72" aria-hidden="true"></canvas><span>PIKACHU</span></div>
+            </div>
+            <div class="tm-status"><span class="chip" id="tradeStatus">Offer sent…</span></div>
+          </div>
+        </div>
+        <ol class="tsteps">
+          <li><span class="n">1</span><div><b>Enter a friend's trainer code</b><p>Their Pokédex opens so you can see what they've got.</p></div></li>
+          <li><span class="n">2</span><div><b>Pick one of theirs, offer one of yours</b><p>Choose what you'll give for it.</p></div></li>
+          <li><span class="n">3</span><div><b>Send the offer</b><p>If they accept, the swap happens straight away.</p></div></li>
+          <li class="irl"><span class="n">★</span><div><b>Hanging out together?</b><p>Skip the code. Show your one-time trade QR and let your friend scan it.</p></div></li>
         </ol>
       </div>
-      <div class="phones trade-phones">
-        <div class="phone tilt-l"><img src="assets/screen-trade-offer.webp" alt="A trade offer: Ash wants your Squirtle for his Charmander, with Accept trade and Decline buttons" width="520" height="1125" loading="lazy" /></div>
-        <div class="phone"><img src="assets/screen-trade-done.webp" alt="Trade complete: Charmander joined your Pokédex, with an Add friend button" width="520" height="1125" loading="lazy" /></div>
-        <div class="phone tilt-r"><img src="assets/screen-trade-qr.webp" alt="An in-person trade QR code for your Charmander" width="520" height="1125" loading="lazy" /></div>
-      </div>
     </section>
 
-
-
-    <!-- ============ 7. WANT ONE? (interest check) ============ -->
-    <section class="sec want" id="want">
-      <header class="sec-head">
-        <p class="eyebrow">07 · What's next</p>
-        <h2>Want one of <span class="pink">your own?</span></h2>
-        <p class="sub">The Pokémon version stays a gift for my friends. But the idea works for any collectible, so I'm thinking about making it real with my own original <b>Nakama creatures</b>. Would you want one?</p>
-      </header>
-      <div class="want-grid">
-        <form class="want-form" id="wantForm" novalidate>
-          <label class="field">Email or Instagram
-            <input id="wantContact" name="contact" required maxlength="120" placeholder="you@email.com or @yourhandle" autocomplete="email" />
-          </label>
-          <label class="field">Your name <span>(optional)</span>
-            <input id="wantName" name="name" maxlength="60" autocomplete="name" />
-          </label>
-          <fieldset class="field chips">
-            <legend>It would be for…</legend>
-            <label><input type="radio" name="for" value="me" checked /><span>Me</span></label>
-            <label><input type="radio" name="for" value="gift" /><span>A gift</span></label>
-            <label><input type="radio" name="for" value="kids" /><span>My kids</span></label>
-            <label><input type="radio" name="for" value="business" /><span>My shop or event</span></label>
-          </fieldset>
-          <label class="field">Anything you'd love to see? <span>(optional)</span>
-            <textarea id="wantNote" name="note" maxlength="500" rows="3" placeholder="A dragon creature, a keychain size, a version for birthdays…"></textarea>
-          </label>
-          <button class="btn" id="wantBtn" type="submit">I'd want one</button>
-          <p class="want-error" id="wantError" role="alert" hidden></p>
-          <p class="fine">I'll only use this to tell you if Nakama creatures happen. No spam, and you can ask me to delete it any time. <a href="../privacy.html">Privacy</a></p>
-        </form>
-        <div class="want-done" id="wantDone" hidden role="status" tabindex="-1">
-          <canvas class="px" id="wantSprite" width="72" height="72" aria-hidden="true"></canvas>
-          <h3>You're on the list!</h3>
-          <p id="wantDoneText">Thanks! I'll let you know if Nakama creatures become real.</p>
-          <a class="btn btn-ghost" href="https://www.instagram.com/nakamaprints_in/" target="_blank" rel="noopener">Follow along on Instagram</a>
+    <!-- ============ 07 HELP ============ -->
+    <section class="band" id="help">
+      <div class="wrap narrow">
+        <header class="sec-head center">
+          <p class="eyebrow">07 · Help</p>
+          <h2>Ask the Professor</h2>
+        </header>
+        <div class="faq">
+          <details>
+            <summary>Is this an official Pokémon product?</summary>
+            <p>No. It's a fan project I make for friends and family. It isn't made, approved or endorsed by Nintendo, The Pokémon Company, Creatures or GAME FREAK.</p>
+          </details>
+          <details>
+            <summary>Can I buy one?</summary>
+            <p>The Pokémon version isn't for sale: it's a gift for my friends. If you'd want something like it, start a save file below and I'll let you know if it becomes real.</p>
+          </details>
+          <details>
+            <summary>Do I need to download an app?</summary>
+            <p>No. Scan the card with your normal camera and it opens in your browser. That's it.</p>
+          </details>
+          <details>
+            <summary>Which phones does it work on?</summary>
+            <p>Any recent iPhone or Android phone with a camera, in Safari or Chrome. Good light helps the camera find the coin.</p>
+          </details>
         </div>
       </div>
     </section>
 
-    <!-- ============ 8. OUTRO ============ -->
-    <section class="outro">
-      <div class="outro-row" id="outroRow" aria-hidden="true"></div>
-      <h2>Every ball, <span class="pink">a surprise.</span></h2>
-      <p class="sub">Gen 2 is already on the drawing board. Peek inside a ball right now, no Pokeball needed.</p>
-      <div class="ctas center">
-        <a class="btn" href="../try/" target="_blank" rel="noopener">Try the demo <small>Opens in a new tab</small></a>
-        <a class="btn btn-ghost" href="https://www.instagram.com/nakamaprints_in/" target="_blank" rel="noopener">Follow @nakamaprints_in</a>
+    <!-- ============ 08 WHAT'S NEXT ============ -->
+    <section class="sec wrap" id="want">
+      <div class="split">
+        <header class="sec-head">
+          <p class="eyebrow">08 · What's next</p>
+          <h2>Want one of <span class="pink">your own?</span></h2>
+          <p class="sub">This version started as a gift for my friends. The idea works for any collectible, so I'm thinking about making it for real with my own original creatures.</p>
+          <p class="sub">If you'd want one, start a save file. It takes about 30 seconds and helps me decide whether to build it.</p>
+        </header>
+        <div>
+          <form class="cream-box save" id="wantForm" novalidate>
+            <p class="box-title">New save file</p>
+            <label class="field">Email or Instagram handle
+              <input id="wantContact" name="contact" required maxlength="120" placeholder="you@email.com or @yourhandle" autocomplete="email" />
+              <span class="hint">Only used to tell you when it's ready.</span>
+            </label>
+            <label class="field">Trainer name <span class="opt">(optional)</span>
+              <input id="wantName" name="name" maxlength="60" placeholder="ASH? RED? You decide." autocomplete="nickname" />
+            </label>
+            <fieldset class="field chips">
+              <legend>Who's it for?</legend>
+              <label><input type="radio" name="for" value="me" checked /><span>Me</span></label>
+              <label><input type="radio" name="for" value="gift" /><span>A gift</span></label>
+              <label><input type="radio" name="for" value="kids" /><span>My kids</span></label>
+              <label><input type="radio" name="for" value="business" /><span>My shop or event</span></label>
+            </fieldset>
+            <label class="field">Anything you'd love to see? <span class="opt">(optional)</span>
+              <textarea id="wantNote" name="note" maxlength="500" rows="3" placeholder="A favourite creature, a bigger ball, a birthday edition…"></textarea>
+            </label>
+            <button class="btn" id="wantBtn" type="submit">▸ Count me in</button>
+            <p class="want-error" id="wantError" role="alert" hidden></p>
+            <p class="fine">No spam. Ask anytime and I'll delete your details. <a href="../privacy.html" target="_blank" rel="noopener">Privacy</a></p>
+          </form>
+          <div class="cream-box save done" id="wantDone" hidden role="status" tabindex="-1">
+            <p class="box-title">Save file created</p>
+            <canvas class="px" id="wantSprite" width="72" height="72" aria-hidden="true"></canvas>
+            <h3>You're on the list!</h3>
+            <p id="wantDoneText">Thanks! I'll let you know if it becomes real.</p>
+            <a class="btn btn-dark" href="https://www.instagram.com/nakamaprints_in/" target="_blank" rel="noopener">Follow along on Instagram</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CONTINUE ============ -->
+    <section class="outro band">
+      <div class="wrap center">
+        <p class="eyebrow y">Continue?</p>
+        <h2>Every ball, <span class="pink">a surprise.</span></h2>
+        <p class="sub">Gen 2 is already on the drawing board. Follow along to see it come together.</p>
+        <div class="ctas center">
+          <a class="btn" href="../try/" target="_blank" rel="noopener">▸ Try the demo</a>
+          <a class="btn btn-ghost" href="https://www.instagram.com/nakamaprints_in/" target="_blank" rel="noopener">Follow @nakamaprints_in</a>
+        </div>
       </div>
     </section>
   </main>
 
   <footer class="foot">
-    <div class="foot-brand"><img src="../assets/np-logo.png" alt="" width="28" height="28" /> <b>Nakama Prints</b> · <a href="https://www.instagram.com/nakamaprints_in/" target="_blank" rel="noopener">@nakamaprints_in</a> · <a href="https://nakamaprints.github.io/privacy.html">Privacy</a></div>
-    <p>The Pokémon version is a personal, non-commercial gift project for friends and family. Nothing Pokémon here is for sale.</p>
-    <p>Pokémon and all related names are © Nintendo, Creatures Inc. and GAME FREAK inc. This is an unofficial fan project and isn't affiliated with or endorsed by them.</p>
+    <div class="wrap foot-in">
+      <div>
+        <p class="brand"><img src="../assets/np-logo.png" alt="" width="26" height="26" /> <span>Nakama Prints</span></p>
+        <p class="legal">Made for everyone who traded at recess. A fan-made project, not for sale. Not affiliated with or endorsed by Nintendo, Creatures Inc. or GAME FREAK. Pokémon and all related names are trademarks of their respective owners.</p>
+      </div>
+      <p class="foot-links"><a href="https://www.instagram.com/nakamaprints_in/" target="_blank" rel="noopener">Instagram</a> <a href="../privacy.html" target="_blank" rel="noopener">Privacy</a></p>
+    </div>
   </footer>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
   <script src="../js/sprites-data.js"></script>
   <script src="../js/creature.js"></script>
-  <script src="../js/pokedex.js"></script>
   <script src="../js/config.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
-  <script src="js/story.js?v=20261029d" defer></script>
+  <script src="js/lab.js?v=20261029"></script>
 </body>
 </html>
