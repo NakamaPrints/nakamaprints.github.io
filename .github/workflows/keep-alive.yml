@@ -1,18 +1,21 @@
-# Weekly ping so the free Supabase project never pauses (it pauses after ~7 days without activity).
+# Daily ping so the free Supabase project never pauses (it pauses after ~7 days without activity).
 # Lives in the site repo as .github/workflows/keep-alive.yml. Uses only the public publishable key.
+# It writes (keep_alive() in tools/db/0010_keep_alive.sql): on 2026-11-08 the project paused even though this
+# workflow had been reading a row twice a week, so reads don't count as activity.
 name: Keep the Pokédex awake
 
 on:
   schedule:
-    - cron: '17 3 * * 1,4'   # Mondays and Thursdays, 03:17 UTC
+    - cron: '17 3 * * *'   # every day, 03:17 UTC
   workflow_dispatch:
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Read one row from the database
+      - name: Record a heartbeat in the database
         run: |
-          curl --fail --silent --show-error \
+          curl --fail --silent --show-error -X POST \
             -H "apikey: sb_publishable_SO4U0DtPq4Hyeuqe7dyysg_GzdxwIRC" \
-            "https://ifjczxrmvrnofgxjujpu.supabase.co/rest/v1/pokemon?select=dex&limit=1"
+            -H "Content-Type: application/json" -d '{}' \
+            "https://ifjczxrmvrnofgxjujpu.supabase.co/rest/v1/rpc/keep_alive"
